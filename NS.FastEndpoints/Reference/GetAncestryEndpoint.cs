@@ -12,7 +12,6 @@ public sealed class GetAncestryEndpoint : Endpoint<ReferenceIdRequest, Ancestry>
     public override void Configure()
     {
         Get("reference/ancestries/{id}");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

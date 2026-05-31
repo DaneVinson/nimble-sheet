@@ -12,7 +12,6 @@ public sealed class GetConditionEndpoint : Endpoint<ReferenceIdRequest, Conditio
     public override void Configure()
     {
         Get("reference/conditions/{id}");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

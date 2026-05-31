@@ -12,7 +12,6 @@ public sealed class GetFeatureEndpoint : Endpoint<ReferenceIdRequest, Feature>
     public override void Configure()
     {
         Get("reference/features/{id}");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

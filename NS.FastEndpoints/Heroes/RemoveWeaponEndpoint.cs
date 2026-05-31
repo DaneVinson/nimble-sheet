@@ -12,7 +12,6 @@ public sealed class RemoveWeaponEndpoint : Endpoint<RemoveWeaponRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/remove-weapon");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

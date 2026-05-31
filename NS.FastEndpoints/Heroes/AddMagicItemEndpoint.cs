@@ -12,7 +12,6 @@ public sealed class AddMagicItemEndpoint : Endpoint<AddMagicItemRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/add-magic-item");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

@@ -12,7 +12,6 @@ public sealed class AddSpellEndpoint : Endpoint<AddSpellRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/add-spell");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

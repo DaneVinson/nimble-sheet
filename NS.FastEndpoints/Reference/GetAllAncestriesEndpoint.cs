@@ -12,7 +12,6 @@ public sealed class GetAllAncestriesEndpoint : EndpointWithoutRequest<List<Ances
     public override void Configure()
     {
         Get("reference/ancestries");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

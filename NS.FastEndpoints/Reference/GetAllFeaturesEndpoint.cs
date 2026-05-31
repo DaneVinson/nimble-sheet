@@ -12,7 +12,6 @@ public sealed class GetAllFeaturesEndpoint : Endpoint<GetAllFeaturesRequest, Lis
     public override void Configure()
     {
         Get("reference/features");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

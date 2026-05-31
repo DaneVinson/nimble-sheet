@@ -12,7 +12,6 @@ public sealed class UpdateCombatStatsEndpoint : Endpoint<UpdateCombatStatsReques
     public override void Configure()
     {
         Post("heroes/{heroId}/update-combat-stats");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

@@ -12,7 +12,6 @@ public sealed class AddFeatureEndpoint : Endpoint<AddFeatureRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/add-feature");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

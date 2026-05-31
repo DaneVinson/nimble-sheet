@@ -35,6 +35,7 @@ public sealed class Hero
     /// <param name="saves">The hero's advantaged and disadvantaged saves.</param>
     /// <param name="skills">The hero's initial skill bonuses.</param>
     /// <param name="stats">The hero's base stats.</param>
+    /// <param name="userId">The identifier of the <see cref="User"/> who owns this hero.</param>
     public Hero(
         Guid ancestryId,
         Guid? backgroundId,
@@ -46,7 +47,8 @@ public sealed class Hero
         ClassResources resources,
         HeroSaves saves,
         HeroSkills skills,
-        HeroStats stats)
+        HeroStats stats,
+        Guid userId)
     {
         AncestryId = ancestryId;
         BackgroundId = backgroundId;
@@ -56,7 +58,7 @@ public sealed class Hero
         CurrentMana = maxMana;
         CurrentWounds = 0;
         HitDiceAvailable = 1;
-        Id = Guid.NewGuid();
+        Id = Guid.CreateVersion7();
         Level = 1;
         MaxHitDice = 1;
         MaxHp = maxHp;
@@ -68,6 +70,7 @@ public sealed class Hero
         Skills = skills;
         Stats = stats;
         UnspentSkillPoints = 0;
+        UserId = userId;
     }
 
     /// <summary>The active conditions currently affecting the hero.</summary>
@@ -159,6 +162,9 @@ public sealed class Hero
 
     /// <summary>Skill points available to allocate from the most recent level-up.</summary>
     public int UnspentSkillPoints { get; private set; }
+
+    /// <summary>The identifier of the <see cref="User"/> who owns this hero.</summary>
+    public Guid UserId { get; private set; }
 
     /// <summary>The weapons the hero is carrying or wielding.</summary>
     public IReadOnlyList<HeroWeapon> Weapons { get => _weapons; init => _weapons.AddRange(value); }

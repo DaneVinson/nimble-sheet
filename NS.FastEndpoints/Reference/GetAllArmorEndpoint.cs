@@ -12,7 +12,6 @@ public sealed class GetAllArmorEndpoint : EndpointWithoutRequest<List<Armor>>
     public override void Configure()
     {
         Get("reference/armor");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

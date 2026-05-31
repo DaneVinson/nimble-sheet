@@ -12,7 +12,6 @@ public sealed class LevelUpEndpoint : Endpoint<LevelUpRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/level-up");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

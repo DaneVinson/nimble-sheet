@@ -12,7 +12,6 @@ public sealed class GainWoundEndpoint : Endpoint<HeroIdRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/gain-wound");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

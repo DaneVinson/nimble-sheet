@@ -12,7 +12,6 @@ public sealed class GetRuleEndpoint : Endpoint<ReferenceIdRequest, RuleReference
     public override void Configure()
     {
         Get("reference/rules/{id}");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

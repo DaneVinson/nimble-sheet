@@ -12,7 +12,6 @@ public sealed class TakeDamageEndpoint : Endpoint<TakeDamageRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/take-damage");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

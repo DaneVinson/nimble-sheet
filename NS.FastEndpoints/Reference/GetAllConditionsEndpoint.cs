@@ -12,7 +12,6 @@ public sealed class GetAllConditionsEndpoint : EndpointWithoutRequest<List<Condi
     public override void Configure()
     {
         Get("reference/conditions");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

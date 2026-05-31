@@ -1,3 +1,12 @@
 global using FastEndpoints;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.Extensions.Options;
+global using Microsoft.IdentityModel.JsonWebTokens;
+global using Microsoft.IdentityModel.Tokens;
+global using NS.Domain;
 global using NSFastEndpoints;
 global using NSSoloDB;
+global using NSWebApp;
+global using System.Security.Claims;
+global using System.Text;

@@ -12,7 +12,6 @@ public sealed class RemoveMagicItemEndpoint : Endpoint<RemoveMagicItemRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/remove-magic-item");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

@@ -70,11 +70,12 @@ HeroWeapon(Guid HeroId, bool IsEquipped, string? Notes, Guid WeaponId)
 
 `Hero` is a `sealed class` (not a record) with:
 
-- **Constructor**: sets `Level=1`, `MaxHitDice=1`, `HitDiceAvailable=1`, `CurrentHp=maxHp`, `CurrentMana=maxMana`, `CurrentWounds=0`, `PendingStatIncrease=false`, `UnspentSkillPoints=0`
+- **Constructor**: sets `Level=1`, `MaxHitDice=1`, `HitDiceAvailable=1`, `CurrentHp=maxHp`, `CurrentMana=maxMana`, `CurrentWounds=0`, `PendingStatIncrease=false`, `UnspentSkillPoints=0`. Constructor parameter `userId` (alphabetically last) is stored as `UserId`.
 - **`private Hero()`** parameterless constructor for deserializers — sets all reference-type properties to `null!`
 - Scalar mutable properties use `private set`
 - Collection properties use the `init => _field.AddRange(value)` pattern to support deserializer reconstruction while backing the field with `private readonly List<T>`
 - `IsDead => CurrentWounds >= 6`; `IsDying => CurrentHp == 0`
+- `UserId` links a hero to its owning `User`
 
 **Mutation methods** (alphabetical): `AddArmor`, `AddCondition`, `AddFeature`, `AddGearItem`, `AddMagicItem`, `AddSpell`, `AddWeapon`, `ApplyHpIncrease`, `ApplyStatIncrease`, `CompletePendingChoice`, `FinalizeSkillAllocation`, `GainWound`, `Heal`, `HealWound`, `LevelUp`, `RecoverAllResources`, `RemoveArmor`, `RemoveCondition`, `RemoveFeature`, `RemoveGearItem`, `RemoveMagicItem`, `RemoveSpell`, `RemoveWeapon`, `SetSubclass`, `SpendHitDice`, `SpendMana`, `TakeDamage`, `UpdateCombatStats`
 
@@ -106,7 +107,25 @@ Task SaveAsync(Hero hero);
 Task<IReadOnlyList<T>> FindAsync(Func<T, bool> predicate);
 Task<IReadOnlyList<T>> GetAllAsync();
 Task<T?> GetByIdAsync(Guid id);
+
+// IUserDataService
+Task CreateAsync(User user);
+Task<IReadOnlyList<User>> FindByNameAsync(string name);  // case-insensitive contains
+Task<User?> GetByIdAsync(Guid id);
+Task UpdateAsync(User user);
 ```
+
+### User Entity
+
+`User` is a `sealed class` (not a record) with properties `Created` (DateTimeOffset), `Email`, `Id` (Guid), `Name` — all `private set`. Follows the same constructor + `private User()` deserializer pattern as `Hero`.
+
+**Mutation methods**: `UpdateEmail(string email)`
+
+Users cannot be deleted.
+
+### GUID creation
+
+All new GUIDs are created with `Guid.CreateVersion7()` (time-ordered, .NET 9+). **Never use `Guid.NewGuid()`.**
 
 ---
 
@@ -118,7 +137,8 @@ Task<T?> GetByIdAsync(Guid id);
 - `SoloDocument<T>` — internal wrapper with `long Id` (SoloDB's required PK) and `T Data`; keeps domain entities free of persistence attributes
 - `SoloHeroDataService` — loads full collection then filters in-memory (SoloDB has no native LINQ over JSON)
 - `SoloReferenceDataService<T>` — uses a cached reflection delegate `Func<T, Guid> _getId` to read `Id` without a domain interface
-- Both services are registered as **Singletons** because SoloDB is thread-safe via its internal connection pool
+- `SoloUserDataService` — same in-memory pattern as `SoloHeroDataService`; implements `IUserDataService`
+- All services are registered as **Singletons** because SoloDB is thread-safe via its internal connection pool
 - `ServiceCollectionExtensions.AddSoloDBDataServices(services, databasePath)` registers everything
 
 **`_GlobalUsings.cs`**:
@@ -134,6 +154,13 @@ global using SoloDatabase;
 
 **Namespace**: `NSFastEndpoints` (flat)  
 **Package**: `FastEndpoints` 8.1.0
+
+**`_GlobalUsings.cs`**:
+```csharp
+global using FastEndpoints;
+global using FluentValidation;
+global using NS.Domain;
+```
 
 ### FastEndpoints 8.x API — critical differences from older versions
 
@@ -168,7 +195,8 @@ await SendAsync(response, cancellation: ct);
 
 - Route params are bound by name (case-insensitive): `{heroId}` → `HeroId` property
 - JSON body and route params are merged automatically
-- All endpoints call `AllowAnonymous()` in `Configure()` (no auth currently)
+- All endpoints require an authenticated user by default (via the global fallback policy). Only `CreateUserEndpoint` and `LoginEndpoint` call `AllowAnonymous()` in `Configure()`.
+- Validators use FluentValidation via `Validator<TRequest>` and are auto-discovered; format rules go in the validator class, business-rule checks (e.g. uniqueness) go in `HandleAsync` via `AddError` + `ThrowIfAnyErrors()`
 
 ### Assembly discovery
 
@@ -183,9 +211,10 @@ NS.WebApp must reference the `FastEndpoints` package **directly** and add `globa
 ### Endpoint file conventions
 
 - One class per file; request/response records defined in the same file as their endpoint
-- Shared request types (`HeroIdRequest`, `ReferenceIdRequest`) live in their own files in the same folder
+- Shared request types (`HeroIdRequest`, `UserIdRequest`, `ReferenceIdRequest`) live in their own files in the same folder
 - Mutation endpoints return 204 No Content; clients re-fetch hero state after mutations
 - `CreateHeroEndpoint` returns 201 with `CreateHeroResponse(Guid Id)`
+- `IJwtTokenService` is defined in NS.FastEndpoints; implementation lives in NS.WebApp
 
 ### Hero endpoint routes
 
@@ -233,15 +262,35 @@ All reference routes follow `GET /reference/{resource}` and `GET /reference/{res
 - `GET /reference/features` supports optional query params: `?heroClass={HeroClass}&level={int}`
 - `GET /reference/spells` supports optional query params: `?tier={int}&school={SpellSchool}`
 
+### User endpoint routes
+
+| Method | Route | Endpoint | Notes |
+|---|---|---|---|
+| POST | `/users` | `CreateUserEndpoint` | Returns 201 with `CreateUserResponse(Guid Id)`; validates email format; checks name uniqueness |
+| GET | `/users/{userId}` | `GetUserEndpoint` | Returns 404 if not found |
+| POST | `/users/{userId}/update-email` | `UpdateUserEmailEndpoint` | Returns 204; validates email format |
+| POST | `/users/login` | `LoginEndpoint` | Returns `LoginResponse(string Token, Guid UserId)`; 401 if name not found |
+
 ---
 
 ## NS.WebApp
 
+**Packages**: `FastEndpoints` 8.1.0, `Microsoft.AspNetCore.Authentication.JwtBearer` 10.0.8
+
 **`_GlobalUsings.cs`**:
 ```csharp
 global using FastEndpoints;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.Extensions.Options;
+global using Microsoft.IdentityModel.JsonWebTokens;
+global using Microsoft.IdentityModel.Tokens;
+global using NS.Domain;
 global using NSFastEndpoints;
 global using NSSoloDB;
+global using NSWebApp;
+global using System.Security.Claims;
+global using System.Text;
 ```
 
 **`Program.cs`**:
@@ -252,13 +301,45 @@ builder.Services.AddSoloDBDataServices(
 builder.Services.AddFastEndpoints(o =>
     o.Assemblies = [typeof(AssemblyMarker).Assembly]);
 
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.MapInboundClaims = false;
+        options.TokenValidationParameters = new()
+        {
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SigningKey"]!)),
+            NameClaimType = JwtRegisteredClaimNames.Name,
+            ValidateAudience = true,
+            ValidateIssuer = true,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build());
+
 var app = builder.Build();
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseFastEndpoints();
 app.Run();
 ```
 
 Database path is configured via `SoloDB:DatabasePath` in `appsettings.json`; defaults to `"nimble-sheet.db"` in the working directory.
+
+JWT is configured via the `"Jwt"` section (`Audience`, `ExpiryHours`, `Issuer`, `SigningKey`). The signing key must be overridden via environment variables or a secrets store in non-development environments.
+
+**JWT token claims**: `sub` = UserId (Guid string), `name` = user display name, `email`, `jti` = token ID. `MapInboundClaims = false` preserves OIDC-standard claim names. `NameClaimType` is mapped to `"name"` so `User.Identity.Name` resolves correctly.
 
 ---
 
@@ -266,5 +347,6 @@ Database path is configured via `SoloDB:DatabasePath` in `appsettings.json`; def
 
 - **SoloDB deserialization of `Hero`**: SoloDB's JSON serializer must be able to populate `Hero`'s `private set` scalar properties. The `private Hero()` parameterless constructor and `init`-accessor collection properties were added specifically to support this. If scalar values (level, HP, etc.) come back as zero after a round-trip, a custom JSON converter for `Hero` will be needed.
 - **In-memory filtering**: All SoloDB operations load the full collection then filter in-memory. This is fine for small datasets (TTRPG character sheets) but would not scale.
-- **No authentication**: All endpoints call `AllowAnonymous()`. Auth is not yet implemented.
+- **Auth is enforced globally**: A fallback `AuthorizationPolicy` of `RequireAuthenticatedUser()` is configured, so every endpoint requires a valid JWT unless it explicitly calls `AllowAnonymous()`. Only `CreateUserEndpoint` and `LoginEndpoint` are anonymous.
+- **Login is not secure**: `LoginEndpoint` authenticates by name match only — no password. This is intentional for the POC.
 - **No Swagger/OpenAPI**: Not yet added; add `FastEndpoints.Swagger` package if needed.

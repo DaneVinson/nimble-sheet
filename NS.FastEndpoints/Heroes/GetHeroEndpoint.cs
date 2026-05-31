@@ -12,7 +12,6 @@ public sealed class GetHeroEndpoint : Endpoint<GetHeroRequest, Hero>
     public override void Configure()
     {
         Get("heroes/{heroId}");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

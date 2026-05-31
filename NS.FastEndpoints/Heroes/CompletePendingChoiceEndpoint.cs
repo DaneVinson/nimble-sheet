@@ -12,7 +12,6 @@ public sealed class CompletePendingChoiceEndpoint : Endpoint<CompletePendingChoi
     public override void Configure()
     {
         Post("heroes/{heroId}/complete-pending-choice");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

@@ -12,7 +12,6 @@ public sealed class GetAllActionsEndpoint : EndpointWithoutRequest<List<ActionRe
     public override void Configure()
     {
         Get("reference/actions");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

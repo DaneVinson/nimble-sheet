@@ -12,7 +12,6 @@ public sealed class DeleteHeroEndpoint : Endpoint<HeroIdRequest>
     public override void Configure()
     {
         Delete("heroes/{heroId}");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

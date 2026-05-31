@@ -12,7 +12,6 @@ public sealed class GetWeaponEndpoint : Endpoint<ReferenceIdRequest, Weapon>
     public override void Configure()
     {
         Get("reference/weapons/{id}");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

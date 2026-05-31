@@ -12,7 +12,6 @@ public sealed class GetAllBackgroundsEndpoint : EndpointWithoutRequest<List<Back
     public override void Configure()
     {
         Get("reference/backgrounds");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

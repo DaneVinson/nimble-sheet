@@ -12,7 +12,6 @@ public sealed class RemoveSpellEndpoint : Endpoint<RemoveSpellRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/remove-spell");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

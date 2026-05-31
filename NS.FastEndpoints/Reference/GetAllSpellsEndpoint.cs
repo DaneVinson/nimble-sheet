@@ -12,7 +12,6 @@ public sealed class GetAllSpellsEndpoint : Endpoint<GetAllSpellsRequest, List<Sp
     public override void Configure()
     {
         Get("reference/spells");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

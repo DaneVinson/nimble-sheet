@@ -12,7 +12,6 @@ public sealed class ApplyHpIncreaseEndpoint : Endpoint<ApplyHpIncreaseRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/apply-hp-increase");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

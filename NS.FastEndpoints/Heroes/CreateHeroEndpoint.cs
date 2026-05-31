@@ -12,7 +12,6 @@ public sealed class CreateHeroEndpoint : Endpoint<CreateHeroRequest, CreateHeroR
     public override void Configure()
     {
         Post("heroes");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>
@@ -29,7 +28,8 @@ public sealed class CreateHeroEndpoint : Endpoint<CreateHeroRequest, CreateHeroR
             req.Resources,
             req.Saves,
             req.Skills,
-            req.Stats);
+            req.Stats,
+            req.UserId);
 
         await _heroes.SaveAsync(hero);
         await Send.ResponseAsync(new CreateHeroResponse(hero.Id), 201, ct);
@@ -48,6 +48,7 @@ public sealed class CreateHeroEndpoint : Endpoint<CreateHeroRequest, CreateHeroR
 /// <param name="Saves">The hero's save advantage and disadvantage types.</param>
 /// <param name="Skills">The hero's initial skill bonuses.</param>
 /// <param name="Stats">The hero's base stats.</param>
+/// <param name="UserId">The identifier of the user who owns this hero.</param>
 public sealed record CreateHeroRequest(
     Guid AncestryId,
     Guid? BackgroundId,
@@ -59,7 +60,8 @@ public sealed record CreateHeroRequest(
     ClassResources Resources,
     HeroSaves Saves,
     HeroSkills Skills,
-    HeroStats Stats);
+    HeroStats Stats,
+    Guid UserId);
 
 /// <summary>Response returned after successfully creating a hero.</summary>
 /// <param name="Id">The newly created hero's unique identifier.</param>

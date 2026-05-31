@@ -12,7 +12,6 @@ public sealed class AddArmorEndpoint : Endpoint<AddArmorRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/add-armor");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

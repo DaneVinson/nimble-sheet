@@ -12,7 +12,6 @@ public sealed class GetActionEndpoint : Endpoint<ReferenceIdRequest, ActionRefer
     public override void Configure()
     {
         Get("reference/actions/{id}");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

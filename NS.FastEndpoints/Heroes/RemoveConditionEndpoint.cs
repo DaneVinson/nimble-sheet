@@ -12,7 +12,6 @@ public sealed class RemoveConditionEndpoint : Endpoint<RemoveConditionRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/remove-condition");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

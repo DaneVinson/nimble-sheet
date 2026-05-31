@@ -12,7 +12,6 @@ public sealed class SetSubclassEndpoint : Endpoint<SetSubclassRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/set-subclass");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

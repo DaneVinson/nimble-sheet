@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<SoloDB>(_ => new SoloDB(databasePath));
         services.AddSingleton<IHeroDataService, SoloHeroDataService>();
+        services.AddSingleton<IUserDataService, SoloUserDataService>();
         services.AddSingleton<IReferenceDataService<ActionReference>, SoloReferenceDataService<ActionReference>>();
         services.AddSingleton<IReferenceDataService<Ancestry>, SoloReferenceDataService<Ancestry>>();
         services.AddSingleton<IReferenceDataService<Armor>, SoloReferenceDataService<Armor>>();

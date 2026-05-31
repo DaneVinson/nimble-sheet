@@ -12,7 +12,6 @@ public sealed class GetAllMagicItemsEndpoint : EndpointWithoutRequest<List<Magic
     public override void Configure()
     {
         Get("reference/magic-items");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

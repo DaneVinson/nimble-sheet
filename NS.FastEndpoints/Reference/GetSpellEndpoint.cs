@@ -12,7 +12,6 @@ public sealed class GetSpellEndpoint : Endpoint<ReferenceIdRequest, Spell>
     public override void Configure()
     {
         Get("reference/spells/{id}");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

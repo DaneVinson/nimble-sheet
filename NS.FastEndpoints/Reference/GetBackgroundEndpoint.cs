@@ -12,7 +12,6 @@ public sealed class GetBackgroundEndpoint : Endpoint<ReferenceIdRequest, Backgro
     public override void Configure()
     {
         Get("reference/backgrounds/{id}");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

@@ -12,7 +12,6 @@ public sealed class AddConditionEndpoint : Endpoint<AddConditionRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/add-condition");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

@@ -12,7 +12,6 @@ public sealed class SpendManaEndpoint : Endpoint<SpendManaRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/spend-mana");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

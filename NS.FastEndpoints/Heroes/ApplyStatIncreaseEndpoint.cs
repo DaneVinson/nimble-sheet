@@ -12,7 +12,6 @@ public sealed class ApplyStatIncreaseEndpoint : Endpoint<ApplyStatIncreaseReques
     public override void Configure()
     {
         Post("heroes/{heroId}/apply-stat-increase");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

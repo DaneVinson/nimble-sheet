@@ -12,7 +12,6 @@ public sealed class RecoverAllResourcesEndpoint : Endpoint<HeroIdRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/recover-all-resources");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

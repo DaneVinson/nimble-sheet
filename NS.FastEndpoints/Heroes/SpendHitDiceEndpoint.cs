@@ -12,7 +12,6 @@ public sealed class SpendHitDiceEndpoint : Endpoint<SpendHitDiceRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/spend-hit-dice");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

@@ -12,7 +12,6 @@ public sealed class FinalizeSkillAllocationEndpoint : Endpoint<FinalizeSkillAllo
     public override void Configure()
     {
         Post("heroes/{heroId}/finalize-skill-allocation");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

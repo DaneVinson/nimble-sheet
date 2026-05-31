@@ -12,7 +12,6 @@ public sealed class RemoveFeatureEndpoint : Endpoint<RemoveFeatureRequest>
     public override void Configure()
     {
         Post("heroes/{heroId}/remove-feature");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>

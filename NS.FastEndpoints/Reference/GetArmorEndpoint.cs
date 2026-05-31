@@ -12,7 +12,6 @@ public sealed class GetArmorEndpoint : Endpoint<ReferenceIdRequest, Armor>
     public override void Configure()
     {
         Get("reference/armor/{id}");
-        AllowAnonymous();
     }
 
     /// <inheritdoc/>
