@@ -75,9 +75,9 @@ HeroWeapon(Guid HeroId, bool IsEquipped, string? Notes, Guid WeaponId)
 `Hero` is a `sealed class` (not a record) with:
 
 - **Constructor**: sets `Level=1`, `MaxHitDice=1`, `HitDiceAvailable=1`, `CurrentHp=maxHp`, `CurrentMana=maxMana`, `CurrentWounds=0`, `PendingStatIncrease=false`, `UnspentSkillPoints=0`. Constructor parameter `userId` (alphabetically last) is stored as `UserId`.
-- **`private Hero()`** parameterless constructor for deserializers — sets all reference-type properties to `null!`
-- Scalar mutable properties use `private set`
-- Collection properties use the `init => _field.AddRange(value)` pattern to support deserializer reconstruction while backing the field with `private readonly List<T>`
+- **`private Hero()`** parameterless constructor that sets reference-type properties to `null!`; retained as a safety net but **not** used by SoloDB (which rehydrates via uninitialized objects — see Known Caveats)
+- Scalar properties use `private set` (including `Id`, so SoloDB can rehydrate it)
+- Collection properties expose `IReadOnlyList<T>` over a non-`readonly` `List<T>` field; the `init` accessor **assigns** a null-tolerant new list (`init => _field = value is null ? [] : [.. value];`) so SoloDB can rehydrate them (see Known Caveats)
 - `IsDead => CurrentWounds >= 6`; `IsDying => CurrentHp == 0`
 - `UserId` links a hero to its owning `User`
 
@@ -108,6 +108,7 @@ Weapon(string DamageExpression, DamageType DamageType, string Description, Guid 
 Task DeleteAsync(Guid id);
 Task<IReadOnlyList<Hero>> GetAllAsync();
 Task<Hero?> GetByIdAsync(Guid id);
+Task<IReadOnlyList<Hero>> GetByUserAsync(Guid userId);
 Task SaveAsync(Hero hero);
 
 // IReferenceDataService<T> where T : class
@@ -167,6 +168,7 @@ global using SoloDatabase;
 global using FastEndpoints;
 global using FluentValidation;
 global using NS.Domain;
+global using System.Security.Claims;
 ```
 
 ### FastEndpoints 8.x API — critical differences from older versions
@@ -306,6 +308,7 @@ global using NSSoloDB;
 global using NSWebApp;
 global using System.Security.Claims;
 global using System.Text;
+global using System.Text.Json.Serialization;
 ```
 
 **`Program.cs`**:
@@ -344,9 +347,12 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 app.UseHttpsRedirection();
+app.UseDefaultFiles();      // serve the SPA from wwwroot (same-origin)
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseFastEndpoints();
+app.UseFastEndpoints(c => c.Serializer.Options.Converters.Add(new JsonStringEnumConverter()));
+app.MapFallbackToFile("index.html").AllowAnonymous();   // SPA deep-link fallback
 app.Run();
 ```
 
