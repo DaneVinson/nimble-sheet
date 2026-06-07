@@ -34,8 +34,19 @@ builder.Services.AddAuthorization(options =>
 var app = builder.Build();
 
 app.UseHttpsRedirection();
+
+// Serve the SvelteKit SPA (copied into wwwroot at publish) as same-origin static
+// content. Static files are served before auth, so assets load without a token.
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseFastEndpoints();
+
+// SPA fallback: any non-API, non-file request returns the app shell so client-side
+// routing (deep links such as the login page) works. AllowAnonymous so the shell
+// loads without a token; the API endpoints keep their own auth requirements.
+app.MapFallbackToFile("index.html").AllowAnonymous();
 
 app.Run();

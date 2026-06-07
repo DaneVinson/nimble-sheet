@@ -36,6 +36,17 @@ bld/
 # CM.Api generated SPA output (populated by BuildQuasarIfMissing / BuildQuasar MSBuild targets)
 Applications/CM.Api/wwwroot/
 
+# NS.WebApp generated SPA output (populated by BuildSpaIfMissing / PublishSpa MSBuild targets)
+NS.WebApp/wwwroot/
+
+# Superpowers brainstorming visual companion artifacts
+.superpowers/
+
+# SoloDB local runtime database files
+*.db
+*.db-shm
+*.db-wal
+
 # Node and SvelteKit outputs
 Dice.Client/node_modules/
 Dice.Client/.svelte-kit/

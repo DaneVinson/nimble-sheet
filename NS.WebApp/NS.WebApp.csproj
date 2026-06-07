@@ -13,6 +13,44 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <!-- Location of the SvelteKit SPA; adapter-static writes its output to build\. -->
+    <SpaRoot>..\NS.Client\</SpaRoot>
   </PropertyGroup>
+
+  <!--
+    BuildSpaIfMissing: runs before Build only when wwwroot\index.html is absent.
+    Builds the SPA and copies its static output into the source wwwroot so NS.WebApp
+    serves the front-end itself (single web server in dev). Skipped on subsequent
+    builds once the output exists, keeping the inner loop fast. To pick up SPA source
+    changes, delete NS.WebApp\wwwroot (or run npm run build in NS.Client) and rebuild.
+  -->
+  <Target Name="BuildSpaIfMissing" BeforeTargets="Build"
+          Condition="!Exists('$(MSBuildThisFileDirectory)wwwroot\index.html')">
+    <Message Text="Building NS.Client SPA (output missing)..." Importance="high" />
+    <Exec Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)$(SpaRoot)" />
+    <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)$(SpaRoot)" />
+    <ItemGroup>
+      <SpaDistFiles Include="$(MSBuildThisFileDirectory)$(SpaRoot)build\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SpaDistFiles)"
+          DestinationFiles="@(SpaDistFiles->'$(MSBuildThisFileDirectory)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+  <!--
+    PublishSpa: always runs on dotnet publish to guarantee a fresh production build,
+    injecting the static output into wwwroot of the publish directory (never the
+    source tree). Same-origin hosting means no CORS configuration is required.
+  -->
+  <Target Name="PublishSpa" BeforeTargets="Publish">
+    <Message Text="Building NS.Client SPA for publish..." Importance="high" />
+    <Exec Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)$(SpaRoot)" />
+    <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)$(SpaRoot)" />
+    <ItemGroup>
+      <SpaPublishFiles Include="$(MSBuildThisFileDirectory)$(SpaRoot)build\**\*" />
+      <ResolvedFileToPublish Include="@(SpaPublishFiles)">
+        <RelativePath>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</RelativePath>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
 
 </Project>
