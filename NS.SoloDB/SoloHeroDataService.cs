@@ -38,6 +38,17 @@ public sealed class SoloHeroDataService : IHeroDataService
     }
 
     /// <inheritdoc/>
+    public Task<IReadOnlyList<Hero>> GetByUserAsync(Guid userId)
+    {
+        IReadOnlyList<Hero> heroes = _db.GetCollection<SoloDocument<Hero>>()
+            .ToList()
+            .Where(d => d.Data.UserId == userId)
+            .Select(d => d.Data)
+            .ToList();
+        return Task.FromResult(heroes);
+    }
+
+    /// <inheritdoc/>
     public Task SaveAsync(Hero hero)
     {
         var col = _db.GetCollection<SoloDocument<Hero>>();
