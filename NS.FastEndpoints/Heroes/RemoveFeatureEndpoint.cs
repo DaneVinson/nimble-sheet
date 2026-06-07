@@ -17,7 +17,7 @@ public sealed class RemoveFeatureEndpoint : Endpoint<RemoveFeatureRequest>
     /// <inheritdoc/>
     public override async Task HandleAsync(RemoveFeatureRequest req, CancellationToken ct)
     {
-        var hero = await _heroes.GetByIdAsync(req.HeroId);
+        var hero = await _heroes.GetOwnedByIdAsync(req.HeroId, User.GetUserId());
         if (hero is null) { await Send.NotFoundAsync(ct); return; }
         hero.RemoveFeature(req.FeatureId);
         await _heroes.SaveAsync(hero);

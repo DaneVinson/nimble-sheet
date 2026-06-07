@@ -17,7 +17,7 @@ public sealed class AddMagicItemEndpoint : Endpoint<AddMagicItemRequest>
     /// <inheritdoc/>
     public override async Task HandleAsync(AddMagicItemRequest req, CancellationToken ct)
     {
-        var hero = await _heroes.GetByIdAsync(req.HeroId);
+        var hero = await _heroes.GetOwnedByIdAsync(req.HeroId, User.GetUserId());
         if (hero is null) { await Send.NotFoundAsync(ct); return; }
         hero.AddMagicItem(new HeroMagicItem(req.ChargesRemaining, req.HeroId, req.IsEquipped, req.MagicItemId));
         await _heroes.SaveAsync(hero);

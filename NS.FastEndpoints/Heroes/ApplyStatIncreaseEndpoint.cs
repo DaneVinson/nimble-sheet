@@ -17,7 +17,7 @@ public sealed class ApplyStatIncreaseEndpoint : Endpoint<ApplyStatIncreaseReques
     /// <inheritdoc/>
     public override async Task HandleAsync(ApplyStatIncreaseRequest req, CancellationToken ct)
     {
-        var hero = await _heroes.GetByIdAsync(req.HeroId);
+        var hero = await _heroes.GetOwnedByIdAsync(req.HeroId, User.GetUserId());
         if (hero is null) { await Send.NotFoundAsync(ct); return; }
         hero.ApplyStatIncrease(req.Stat);
         await _heroes.SaveAsync(hero);

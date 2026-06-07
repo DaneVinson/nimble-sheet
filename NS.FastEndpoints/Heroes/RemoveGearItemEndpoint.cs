@@ -17,7 +17,7 @@ public sealed class RemoveGearItemEndpoint : Endpoint<RemoveGearItemRequest>
     /// <inheritdoc/>
     public override async Task HandleAsync(RemoveGearItemRequest req, CancellationToken ct)
     {
-        var hero = await _heroes.GetByIdAsync(req.HeroId);
+        var hero = await _heroes.GetOwnedByIdAsync(req.HeroId, User.GetUserId());
         if (hero is null) { await Send.NotFoundAsync(ct); return; }
         hero.RemoveGearItem(req.Name);
         await _heroes.SaveAsync(hero);

@@ -17,7 +17,7 @@ public sealed class AddConditionEndpoint : Endpoint<AddConditionRequest>
     /// <inheritdoc/>
     public override async Task HandleAsync(AddConditionRequest req, CancellationToken ct)
     {
-        var hero = await _heroes.GetByIdAsync(req.HeroId);
+        var hero = await _heroes.GetOwnedByIdAsync(req.HeroId, User.GetUserId());
         if (hero is null) { await Send.NotFoundAsync(ct); return; }
         hero.AddCondition(new HeroCondition(req.ConditionId, req.ExpiresAtEndOf, req.HeroId));
         await _heroes.SaveAsync(hero);

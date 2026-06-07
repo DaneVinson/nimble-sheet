@@ -17,7 +17,7 @@ public sealed class CompletePendingChoiceEndpoint : Endpoint<CompletePendingChoi
     /// <inheritdoc/>
     public override async Task HandleAsync(CompletePendingChoiceRequest req, CancellationToken ct)
     {
-        var hero = await _heroes.GetByIdAsync(req.HeroId);
+        var hero = await _heroes.GetOwnedByIdAsync(req.HeroId, User.GetUserId());
         if (hero is null) { await Send.NotFoundAsync(ct); return; }
         var feature = new HeroFeature(req.Choices, req.FeatureId, req.HeroId, req.LevelGained);
         hero.CompletePendingChoice(req.ChoiceLabel, feature);

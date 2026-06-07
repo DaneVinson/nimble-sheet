@@ -17,7 +17,7 @@ public sealed class RemoveConditionEndpoint : Endpoint<RemoveConditionRequest>
     /// <inheritdoc/>
     public override async Task HandleAsync(RemoveConditionRequest req, CancellationToken ct)
     {
-        var hero = await _heroes.GetByIdAsync(req.HeroId);
+        var hero = await _heroes.GetOwnedByIdAsync(req.HeroId, User.GetUserId());
         if (hero is null) { await Send.NotFoundAsync(ct); return; }
         hero.RemoveCondition(req.ConditionId);
         await _heroes.SaveAsync(hero);

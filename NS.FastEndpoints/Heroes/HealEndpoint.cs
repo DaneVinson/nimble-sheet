@@ -17,7 +17,7 @@ public sealed class HealEndpoint : Endpoint<HealRequest>
     /// <inheritdoc/>
     public override async Task HandleAsync(HealRequest req, CancellationToken ct)
     {
-        var hero = await _heroes.GetByIdAsync(req.HeroId);
+        var hero = await _heroes.GetOwnedByIdAsync(req.HeroId, User.GetUserId());
         if (hero is null) { await Send.NotFoundAsync(ct); return; }
         hero.Heal(req.Amount);
         await _heroes.SaveAsync(hero);
