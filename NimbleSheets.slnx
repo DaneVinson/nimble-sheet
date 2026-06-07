@@ -2,5 +2,6 @@
   <Project Path="NS.Domain/NS.Domain.csproj" />
   <Project Path="NS.FastEndpoints/NS.FastEndpoints.csproj" />
   <Project Path="NS.SoloDB/NS.SoloDB.csproj" />
+  <Project Path="NS.Tests/NS.Tests.csproj" />
   <Project Path="NS.WebApp/NS.WebApp.csproj" />
 </Solution>
