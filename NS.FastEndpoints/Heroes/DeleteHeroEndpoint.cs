@@ -17,6 +17,8 @@ public sealed class DeleteHeroEndpoint : Endpoint<HeroIdRequest>
     /// <inheritdoc/>
     public override async Task HandleAsync(HeroIdRequest req, CancellationToken ct)
     {
+        var hero = await _heroes.GetOwnedByIdAsync(req.HeroId, User.GetUserId());
+        if (hero is null) { await Send.NotFoundAsync(ct); return; }
         await _heroes.DeleteAsync(req.HeroId);
         await Send.NoContentAsync(ct);
     }

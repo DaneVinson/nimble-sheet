@@ -17,7 +17,7 @@ public sealed class GetAllHeroesEndpoint : EndpointWithoutRequest<List<Hero>>
     /// <inheritdoc/>
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var heroes = await _heroes.GetAllAsync();
+        var heroes = await _heroes.GetByUserAsync(User.GetUserId());
         await Send.OkAsync(heroes.ToList(), ct);
     }
 }
