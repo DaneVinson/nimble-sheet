@@ -42,7 +42,9 @@ app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseFastEndpoints();
+
+// Serialize enums by name (e.g. "Oathsworn", "D10") and accept names or integers on input.
+app.UseFastEndpoints(c => c.Serializer.Options.Converters.Add(new JsonStringEnumConverter()));
 
 // SPA fallback: any non-API, non-file request returns the app shell so client-side
 // routing (deep links such as the login page) works. AllowAnonymous so the shell

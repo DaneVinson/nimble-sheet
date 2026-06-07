@@ -16,6 +16,7 @@ NS.SoloDB/                     ← SoloDB persistence implementations
 NS.FastEndpoints/              ← All API endpoints (discovered by NS.WebApp at startup)
 NS.WebApp/                     ← Entry point; wires DI and middleware
 NS.Client/                     ← SvelteKit SPA front-end (TypeScript); consumes the API over HTTP
+NS.Tests/                      ← xUnit tests (domain unit tests + SoloDB round-trip tests)
 ```
 
 ---
@@ -348,6 +349,8 @@ app.UseAuthorization();
 app.UseFastEndpoints();
 app.Run();
 ```
+
+**JSON enum serialization**: `UseFastEndpoints` registers a `JsonStringEnumConverter`, so enums are serialized as their **names** (e.g. `"class":"Oathsworn"`, `"hitDieType":"D10"`, `"advantageOn":"Will"`). Requests accept either names or integers. Prefer names in the client.
 
 Database path is configured via `SoloDB:DatabasePath` in `appsettings.json`; defaults to `"nimble-sheet.db"` in the working directory.
 
