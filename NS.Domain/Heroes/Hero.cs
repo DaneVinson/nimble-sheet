@@ -69,6 +69,7 @@ public sealed class Hero
         Saves = saves;
         Skills = skills;
         Stats = stats;
+        TempHp = 0;
         UnspentSkillPoints = 0;
         UserId = userId;
     }
@@ -160,6 +161,9 @@ public sealed class Hero
     /// <summary>The hero's chosen subclass; <see langword="null"/> until level 3.</summary>
     public string? Subclass { get; private set; }
 
+    /// <summary>The hero's temporary hit points, which absorb damage before current hit points. Lost on a Safe Rest.</summary>
+    public int TempHp { get; private set; }
+
     /// <summary>Skill points available to allocate from the most recent level-up.</summary>
     public int UnspentSkillPoints { get; private set; }
 
@@ -228,6 +232,9 @@ public sealed class Hero
     /// <summary>Inflicts one wound on the hero. Death occurs at 6 wounds.</summary>
     public void GainWound() => CurrentWounds = Math.Min(CurrentWounds + 1, 6);
 
+    /// <summary>Grants temporary hit points. Temp HP does not stack; the greater of the current and granted values is kept.</summary>
+    public void GrantTempHp(int amount) => TempHp = Math.Max(TempHp, amount);
+
     /// <summary>Restores the specified amount of hit points, up to the hero's maximum.</summary>
     public void Heal(int amount) => CurrentHp = Math.Min(CurrentHp + amount, MaxHp);
 
@@ -250,6 +257,7 @@ public sealed class Hero
         CurrentHp = MaxHp;
         CurrentMana = MaxMana;
         HitDiceAvailable = MaxHitDice;
+        TempHp = 0;
         HealWound();
         if (Resources.LayOnHandsPool.HasValue)
             Resources = Resources with { LayOnHandsPool = 5 * Level };
@@ -300,8 +308,46 @@ public sealed class Hero
             CurrentMana = Math.Max(CurrentMana.Value - amount, 0);
     }
 
-    /// <summary>Reduces the hero's hit points by the specified amount, flooring at zero. When reduced to zero the hero enters the dying state.</summary>
-    public void TakeDamage(int amount) => CurrentHp = Math.Max(CurrentHp - amount, 0);
+    /// <summary>Reduces the hero's hit points by the specified amount, flooring at zero. Temporary hit points absorb damage first. When reduced to zero the hero enters the dying state.</summary>
+    public void TakeDamage(int amount)
+    {
+        if (TempHp > 0)
+        {
+            var absorbed = Math.Min(TempHp, amount);
+            TempHp -= absorbed;
+            amount -= absorbed;
+        }
+        CurrentHp = Math.Max(CurrentHp - amount, 0);
+    }
+
+    /// <summary>Overwrites the hero's build attributes (those chosen during character creation), preserving level, subclass, play state, and all collections. Current hit points and mana are clamped to the new maximums.</summary>
+    public void UpdateBuild(
+        Guid ancestryId,
+        Guid? backgroundId,
+        HeroCombatStats combatStats,
+        HeroClass heroClass,
+        int maxHp,
+        int? maxMana,
+        string name,
+        ClassResources resources,
+        HeroSaves saves,
+        HeroSkills skills,
+        HeroStats stats)
+    {
+        AncestryId = ancestryId;
+        BackgroundId = backgroundId;
+        Class = heroClass;
+        CombatStats = combatStats;
+        MaxHp = maxHp;
+        CurrentHp = Math.Min(CurrentHp, maxHp);
+        MaxMana = maxMana;
+        CurrentMana = maxMana.HasValue ? Math.Min(CurrentMana ?? maxMana.Value, maxMana.Value) : null;
+        Name = name;
+        Resources = resources;
+        Saves = saves;
+        Skills = skills;
+        Stats = stats;
+    }
 
     /// <summary>Updates the hero's combat statistics, for example after equipping or removing armor.</summary>
     public void UpdateCombatStats(HeroCombatStats combatStats) => CombatStats = combatStats;
