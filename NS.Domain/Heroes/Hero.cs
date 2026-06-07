@@ -3,14 +3,14 @@ namespace NS.Domain;
 /// <summary>The primary entity representing a player character in Nimble.</summary>
 public sealed class Hero
 {
-    private readonly List<HeroArmor> _armor = [];
-    private readonly List<HeroCondition> _conditions = [];
-    private readonly List<HeroFeature> _features = [];
-    private readonly List<HeroGearItem> _gear = [];
-    private readonly List<HeroMagicItem> _magicItems = [];
-    private readonly List<string> _pendingFeatureChoices = [];
-    private readonly List<HeroSpell> _spells = [];
-    private readonly List<HeroWeapon> _weapons = [];
+    private List<HeroArmor> _armor = [];
+    private List<HeroCondition> _conditions = [];
+    private List<HeroFeature> _features = [];
+    private List<HeroGearItem> _gear = [];
+    private List<HeroMagicItem> _magicItems = [];
+    private List<string> _pendingFeatureChoices = [];
+    private List<HeroSpell> _spells = [];
+    private List<HeroWeapon> _weapons = [];
 
     /// <summary>Private parameterless constructor reserved for deserializers.</summary>
     private Hero()
@@ -75,13 +75,13 @@ public sealed class Hero
     }
 
     /// <summary>The active conditions currently affecting the hero.</summary>
-    public IReadOnlyList<HeroCondition> ActiveConditions { get => _conditions; init => _conditions.AddRange(value); }
+    public IReadOnlyList<HeroCondition> ActiveConditions { get => _conditions; init => _conditions = value is null ? [] : [.. value]; }
 
     /// <summary>The identifier of the hero's ancestry.</summary>
     public Guid AncestryId { get; private set; }
 
     /// <summary>The armor items the hero is carrying or wearing.</summary>
-    public IReadOnlyList<HeroArmor> Armor { get => _armor; init => _armor.AddRange(value); }
+    public IReadOnlyList<HeroArmor> Armor { get => _armor; init => _armor = value is null ? [] : [.. value]; }
 
     /// <summary>The identifier of the hero's background; <see langword="null"/> if none selected.</summary>
     public Guid? BackgroundId { get; private set; }
@@ -102,16 +102,16 @@ public sealed class Hero
     public int CurrentWounds { get; private set; }
 
     /// <summary>The class features the hero has unlocked.</summary>
-    public IReadOnlyList<HeroFeature> Features { get => _features; init => _features.AddRange(value); }
+    public IReadOnlyList<HeroFeature> Features { get => _features; init => _features = value is null ? [] : [.. value]; }
 
     /// <summary>The mundane gear items the hero is carrying.</summary>
-    public IReadOnlyList<HeroGearItem> Gear { get => _gear; init => _gear.AddRange(value); }
+    public IReadOnlyList<HeroGearItem> Gear { get => _gear; init => _gear = value is null ? [] : [.. value]; }
 
     /// <summary>The number of hit dice currently available to spend during a rest.</summary>
     public int HitDiceAvailable { get; private set; }
 
     /// <summary>The unique identifier of this hero.</summary>
-    public Guid Id { get; }
+    public Guid Id { get; private set; }
 
     /// <summary>Whether the hero is dead (6 or more wounds accumulated).</summary>
     public bool IsDead => CurrentWounds >= 6;
@@ -120,13 +120,13 @@ public sealed class Hero
     public bool IsDying => CurrentHp == 0;
 
     /// <summary>The spells this hero knows.</summary>
-    public IReadOnlyList<HeroSpell> KnownSpells { get => _spells; init => _spells.AddRange(value); }
+    public IReadOnlyList<HeroSpell> KnownSpells { get => _spells; init => _spells = value is null ? [] : [.. value]; }
 
     /// <summary>The hero's current level (1–20).</summary>
     public int Level { get; private set; }
 
     /// <summary>The magic items the hero is carrying or wearing.</summary>
-    public IReadOnlyList<HeroMagicItem> MagicItems { get => _magicItems; init => _magicItems.AddRange(value); }
+    public IReadOnlyList<HeroMagicItem> MagicItems { get => _magicItems; init => _magicItems = value is null ? [] : [.. value]; }
 
     /// <summary>The maximum number of hit dice the hero can hold; equals the hero's level.</summary>
     public int MaxHitDice { get; private set; }
@@ -141,7 +141,7 @@ public sealed class Hero
     public string Name { get; private set; }
 
     /// <summary>Level-up feature selections still to be resolved, e.g. "Choose Subclass", "Choose Underhanded Ability".</summary>
-    public IReadOnlyList<string> PendingFeatureChoices { get => _pendingFeatureChoices; init => _pendingFeatureChoices.AddRange(value); }
+    public IReadOnlyList<string> PendingFeatureChoices { get => _pendingFeatureChoices; init => _pendingFeatureChoices = value is null ? [] : [.. value]; }
 
     /// <summary>Whether the hero has a pending +1 stat increase from leveling up.</summary>
     public bool PendingStatIncrease { get; private set; }
@@ -171,7 +171,7 @@ public sealed class Hero
     public Guid UserId { get; private set; }
 
     /// <summary>The weapons the hero is carrying or wielding.</summary>
-    public IReadOnlyList<HeroWeapon> Weapons { get => _weapons; init => _weapons.AddRange(value); }
+    public IReadOnlyList<HeroWeapon> Weapons { get => _weapons; init => _weapons = value is null ? [] : [.. value]; }
 
     /// <summary>Adds an armor item to the hero's equipment.</summary>
     public void AddArmor(HeroArmor armor) => _armor.Add(armor);
