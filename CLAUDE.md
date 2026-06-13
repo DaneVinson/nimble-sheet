@@ -368,7 +368,16 @@ JWT is configured via the `"Jwt"` section (`Audience`, `ExpiryHours`, `Issuer`, 
 
 ## NS.Client
 
-The front-end SPA. Application features are TBD — only the scaffold exists so far.
+The front-end SPA.
+
+### Character Sheet (display-only)
+
+The first feature: a read-only, dark-mode character sheet at route `/sheet`.
+
+- **Data layer** (`src/lib/`): `api/types.ts` mirrors the API DTOs (camelCase; enums as string-union types matching the `JsonStringEnumConverter` names). `fixtures/caldra.ts` is a `Hero` + `ReferenceData` fixture shaped exactly like API responses. `sheet/resolve.ts` is a pure resolver joining the hero's ID-referenced collections to reference data into a `SheetViewModel` (`sheet/viewmodel.ts`); `sheet/format.ts` holds display helpers.
+- **Components** (`src/lib/sheet/components/`): `HeroSheet` composes a pinned region (banner, vitals, stats with `SAVE▲/▼` save markers, skills) and a tab switcher (`SheetTabs`) over Combat / Magic / Class Resources / Inventory / Features panels. Always dark — styled with dark-tone Tailwind utilities directly, no `dark:` variants.
+- **Tests**: `sheet/resolve.test.ts` (Vitest) covers the resolver; run with `npm test`.
+- **Not yet wired**: live API calls (swap the fixture for `fetch()`), the HP damage/heal popover, and other play mutations are deferred to later slices. The sheet's eventual home is `/heroes/[id]` once auth/list exist.
 
 **Stack**:
 - **SvelteKit 2.x** on **Svelte 5** (runes mode forced for project code), **Vite 8**, **TypeScript**
