@@ -384,6 +384,7 @@ The first feature: a read-only, dark-mode character sheet at route `/sheet`.
 - **Pure SPA**: `@sveltejs/adapter-static` with `fallback: 'index.html'`; `src/routes/+layout.ts` sets `ssr = false` and `prerender = false`. Builds to static assets under `build/` (git-ignored) — no Node server at runtime
 - **Tailwind CSS v4** via the `@tailwindcss/vite` plugin (no `tailwind.config.js`; config is CSS-first in `src/app.css`)
 - **Flowbite Svelte 1.x** (`flowbite-svelte`, `flowbite`, `flowbite-svelte-icons`) as the UI component library
+- **Vitest** for unit tests (pure TypeScript logic, e.g. the sheet resolver); configured via `vitest.config.ts` (standalone, no SvelteKit plugin)
 
 **Key files**:
 - `src/app.css` — Tailwind entry: `@import 'tailwindcss'`, `@plugin 'flowbite/plugin'`, the `dark` custom variant, and `@source` directives pointing at the Flowbite Svelte `dist` folders so their classes are scanned. Imported once in `src/routes/+layout.svelte`
@@ -394,6 +395,7 @@ The first feature: a read-only, dark-mode character sheet at route `/sheet`.
 - `npm run dev` — dev server
 - `npm run build` — static SPA build to `build/`
 - `npm run check` — `svelte-check` type checking (keep at 0 errors / 0 warnings)
+- `npm test` — Vitest unit tests (`vitest run`)
 
 **Conventions**: Flowbite Svelte expects Svelte ≥5.40 and Tailwind ≥4.1. The C# conventions above do **not** apply to this project; follow standard SvelteKit/TypeScript idioms here.
 
