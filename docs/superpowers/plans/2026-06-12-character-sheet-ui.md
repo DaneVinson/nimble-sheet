@@ -159,6 +159,7 @@ export interface Hero {
   tempHp: number;
   unspentSkillPoints: number;
   userId: string;
+  weapons: HeroWeapon[];
 }
 
 // Reference entities.
