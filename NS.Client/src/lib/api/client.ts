@@ -98,3 +98,58 @@ export function getHero(id: string): Promise<Hero> {
 export function getReferenceCollection<T>(resource: string): Promise<T[]> {
 	return apiFetch<T[]>(`/reference/${resource}`);
 }
+
+/** POST /heroes/{id}/take-damage — apply damage (temp HP absorbs first, server-side). */
+export function takeDamage(heroId: string, amount: number): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/take-damage`, {
+		method: 'POST',
+		body: JSON.stringify({ amount })
+	});
+}
+
+/** POST /heroes/{id}/heal — restore hit points. */
+export function heal(heroId: string, amount: number): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/heal`, {
+		method: 'POST',
+		body: JSON.stringify({ amount })
+	});
+}
+
+/** POST /heroes/{id}/grant-temp-hp — set temporary hit points (non-stacking, server-side). */
+export function grantTempHp(heroId: string, amount: number): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/grant-temp-hp`, {
+		method: 'POST',
+		body: JSON.stringify({ amount })
+	});
+}
+
+/** POST /heroes/{id}/gain-wound — add a wound. */
+export function gainWound(heroId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/gain-wound`, { method: 'POST' });
+}
+
+/** POST /heroes/{id}/heal-wound — remove a wound. */
+export function healWound(heroId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/heal-wound`, { method: 'POST' });
+}
+
+/** POST /heroes/{id}/spend-hit-dice — spend hit dice and apply the rolled healing. */
+export function spendHitDice(heroId: string, count: number, healingAmount: number): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/spend-hit-dice`, {
+		method: 'POST',
+		body: JSON.stringify({ count, healingAmount })
+	});
+}
+
+/** POST /heroes/{id}/spend-mana — spend mana. */
+export function spendMana(heroId: string, amount: number): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/spend-mana`, {
+		method: 'POST',
+		body: JSON.stringify({ amount })
+	});
+}
+
+/** POST /heroes/{id}/recover-all-resources — clear temp HP and restore resources (rest). */
+export function recoverAll(heroId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/recover-all-resources`, { method: 'POST' });
+}
