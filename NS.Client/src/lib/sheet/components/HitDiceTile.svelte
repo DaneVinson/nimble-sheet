@@ -52,7 +52,7 @@
 			<button
 				type="button"
 				class="{btn} mt-2 w-full"
-				disabled={actions.busy || available === 0}
+				disabled={actions.busy || available === 0 || !(count > 0) || count > available || !(healing >= 0)}
 				onclick={() => actions.spendHitDice(count, healing)}
 			>
 				Spend

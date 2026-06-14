@@ -32,7 +32,7 @@
 					class="w-14 rounded bg-slate-900 px-1.5 py-1 text-xs text-white"
 					aria-label="Mana to spend"
 				/>
-				<button type="button" class={btn} disabled={actions.busy} onclick={() => actions.spendMana(amount)}>
+				<button type="button" class={btn} disabled={actions.busy || !(amount > 0)} onclick={() => actions.spendMana(amount)}>
 					Spend
 				</button>
 			</div>

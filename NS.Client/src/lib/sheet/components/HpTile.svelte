@@ -39,7 +39,7 @@
 					class="w-14 rounded bg-slate-900 px-1.5 py-1 text-xs text-white"
 					aria-label="Temp HP amount"
 				/>
-				<button type="button" class={btn} disabled={actions.busy} onclick={() => actions.grantTempHp(tempInput)}>
+				<button type="button" class={btn} disabled={actions.busy || !(tempInput >= 0)} onclick={() => actions.grantTempHp(tempInput)}>
 					Temp
 				</button>
 			</div>
