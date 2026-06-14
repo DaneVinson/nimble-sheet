@@ -2,6 +2,7 @@
   import type { SheetViewModel } from '../viewmodel';
   import HitDiceTile from './HitDiceTile.svelte';
   import HpTile from './HpTile.svelte';
+  import ManaTile from './ManaTile.svelte';
   import WoundTrack from './WoundTrack.svelte';
 
   let { vm }: { vm: SheetViewModel } = $props();
@@ -19,4 +20,7 @@
     <div class="mt-1 text-2xl font-extrabold text-white">{vm.initiative}</div>
   </div>
   <HitDiceTile die={vm.hitDice.die} available={vm.hitDice.available} max={vm.hitDice.max} />
+  {#if vm.mana}
+    <ManaTile current={vm.mana.current} max={vm.mana.max} />
+  {/if}
 </div>
