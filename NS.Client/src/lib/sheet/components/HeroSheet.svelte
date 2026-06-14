@@ -5,6 +5,7 @@
   import StatRow from './StatRow.svelte';
   import SkillsRow from './SkillsRow.svelte';
   import SheetTabs from './SheetTabs.svelte';
+  import RestButton from './RestButton.svelte';
 
   let { vm }: { vm: SheetViewModel } = $props();
 </script>
@@ -19,6 +20,9 @@
   />
 
   <div class="space-y-4 bg-slate-900 px-5 py-4">
+    <div class="flex justify-end">
+      <RestButton />
+    </div>
     <VitalsRow {vm} />
     <StatRow stats={vm.stats} />
     <SkillsRow skills={vm.skills} />

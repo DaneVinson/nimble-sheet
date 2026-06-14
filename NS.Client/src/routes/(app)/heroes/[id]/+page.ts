@@ -8,7 +8,7 @@ export async function load({ params }: { params: { id: string } }) {
 	try {
 		const hero = await getHero(params.id);
 		const reference = await assembleReferenceData(hero);
-		return { vm: resolveSheet(hero, reference) };
+		return { vm: resolveSheet(hero, reference), heroId: hero.id };
 	} catch (e) {
 		if (e instanceof ApiError && e.status === 404) {
 			throw error(404, 'Hero not found');
