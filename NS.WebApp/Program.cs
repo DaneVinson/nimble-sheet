@@ -33,6 +33,8 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
+await app.Services.GetRequiredService<IReferenceDataSeeder>().SeedAsync();
+
 app.UseHttpsRedirection();
 
 // Serve the SvelteKit SPA (copied into wwwroot at publish) as same-origin static
