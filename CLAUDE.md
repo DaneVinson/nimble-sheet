@@ -371,26 +371,30 @@ JWT is configured via the `"Jwt"` section (`Audience`, `ExpiryHours`, `Issuer`, 
 
 The front-end SPA.
 
-### Character Sheet (display-only)
+### Character Sheet & live API integration
 
-The first feature: a read-only, dark-mode character sheet at route `/sheet`.
+A dark-mode character sheet backed by **live API data**, behind a login flow.
 
-- **Data layer** (`src/lib/`): `api/types.ts` mirrors the API DTOs (camelCase; enums as string-union types matching the `JsonStringEnumConverter` names). `fixtures/caldra.ts` is a `Hero` + `ReferenceData` fixture shaped exactly like API responses. `sheet/resolve.ts` is a pure resolver joining the hero's ID-referenced collections to reference data into a `SheetViewModel` (`sheet/viewmodel.ts`); `sheet/format.ts` holds display helpers.
-- **Components** (`src/lib/sheet/components/`): `HeroSheet` composes a pinned region (banner, vitals, stats with `SAVE▲/▼` save markers, skills) and a tab switcher (`SheetTabs`) over Combat / Magic / Class Resources / Inventory / Features panels. Always dark — styled with dark-tone Tailwind utilities directly, no `dark:` variants.
-- **Tests**: `sheet/resolve.test.ts` (Vitest) covers the resolver; run with `npm test`.
-- **Not yet wired**: live API calls (swap the fixture for `fetch()`), the HP damage/heal popover, and other play mutations are deferred to later slices. The sheet's eventual home is `/heroes/[id]` once auth/list exist.
+- **Auth/session** (`src/lib/auth/session.ts`): a localStorage-backed JWT session store (`Session = { name, token, userId }`) hydrated on load; `setSession` / `clearSession`. Guarded for non-browser (test) environments.
+- **API client** (`src/lib/api/client.ts`): `apiFetch` attaches the bearer token, throws `ApiError` on non-2xx, and on **401 clears the session + redirects to `/login`** (centrally). 204 → `void`. Typed wrappers: `login`, `createUser`, `getHeroes`, `getHero`, `getReferenceCollection`, plus the hero play-mutation wrappers (`takeDamage`, `heal`, `grantTempHp`, `gainWound`, `healWound`, `spendHitDice`, `spendMana`, `recoverAll`) once that slice lands.
+- **Reference cache** (`src/lib/reference/cache.ts`): lazily fetches only the reference collections a hero actually references (`neededResources` → `assembleReferenceData`), caches each full collection for the session, and **evicts a rejected fetch** so it retries rather than poisoning the cache.
+- **Data layer** (`src/lib/`): `api/types.ts` mirrors the API DTOs (camelCase; enums as string-union types matching the `JsonStringEnumConverter` names). `sheet/resolve.ts` is a pure resolver joining the hero's ID-referenced collections to reference data into a `SheetViewModel` (`sheet/viewmodel.ts`); `sheet/format.ts` holds display helpers. `fixtures/caldra.ts` remains as the resolver test fixture.
+- **Components** (`src/lib/sheet/components/`): `HeroSheet` composes a pinned region (banner, vitals, stats with `SAVE▲/▼` save markers, skills) and a tab switcher (`SheetTabs`) over Combat / Magic / Class Resources / Inventory / Features panels. Always dark — dark-tone Tailwind utilities directly, no `dark:` variants.
+- **Routes**: `/login` (login + create-user, anonymous); a guarded **`(app)` route group** (`(app)/+layout.ts` redirects to `/login` when there's no session; `(app)/+layout.svelte` is the dark app chrome — app name, user name, logout, `$navigating` loading bar) holding `/heroes` (list) and `/heroes/[id]` (the live sheet: load → `getHero` → `assembleReferenceData` → `resolveSheet` → `HeroSheet`, with a `+error.svelte` 404 boundary). Root `/` redirects to `/heroes`. (SvelteKit route groups don't appear in the URL.)
+- **Tests**: Vitest covers the resolver, reference cache, API client, and session store; run with `npm test`. `vitest.config.ts` adds `$lib` and `$app/*` aliases (the latter pointing at `src/test/app-stub.ts`) so these modules import under the Node test env.
+- **Not yet built**: the **live-play mutations** (HP damage/heal popover, wounds, hit dice, mana, recover-all) are designed and planned (`docs/superpowers/specs/2026-06-13-hp-popover-play-mutations-design.md` + `.../plans/2026-06-13-hp-popover-play-mutations.md`) but **shelved/unimplemented**. Also deferred: a **reference-data seeding mechanism** (reference endpoints are GET-only, so the live sheet cannot yet resolve real reference names end-to-end) and the create/edit-hero (build) form.
 
 **Stack**:
 - **SvelteKit 2.x** on **Svelte 5** (runes mode forced for project code), **Vite 8**, **TypeScript**
 - **Pure SPA**: `@sveltejs/adapter-static` with `fallback: 'index.html'`; `src/routes/+layout.ts` sets `ssr = false` and `prerender = false`. Builds to static assets under `build/` (git-ignored) — no Node server at runtime
 - **Tailwind CSS v4** via the `@tailwindcss/vite` plugin (no `tailwind.config.js`; config is CSS-first in `src/app.css`)
 - **Flowbite Svelte 1.x** (`flowbite-svelte`, `flowbite`, `flowbite-svelte-icons`) as the UI component library
-- **Vitest** for unit tests (pure TypeScript logic, e.g. the sheet resolver); configured via `vitest.config.ts` (standalone, no SvelteKit plugin)
+- **Vitest** for unit tests (pure TypeScript logic — resolver, reference cache, API client, session store); configured via `vitest.config.ts` (standalone, no SvelteKit plugin) with `$lib`/`$app/*` aliases (`$app/*` → `src/test/app-stub.ts`) so the app modules import under Node
 
 **Key files**:
 - `src/app.css` — Tailwind entry: `@import 'tailwindcss'`, `@plugin 'flowbite/plugin'`, the `dark` custom variant, and `@source` directives pointing at the Flowbite Svelte `dist` folders so their classes are scanned. Imported once in `src/routes/+layout.svelte`
 - `svelte.config.js` — static adapter + SPA fallback
-- `vite.config.ts` — registers `tailwindcss()` before `sveltekit()`
+- `vite.config.ts` — registers `tailwindcss()` before `sveltekit()`; dev `server.proxy` forwards `/heroes`, `/users`, `/reference` to the API (`http://localhost:5197`) so `npm run dev` runs against the live backend (production is same-origin and never hits the proxy)
 
 **Commands** (run from `NS.Client/`):
 - `npm run dev` — dev server
