@@ -26,7 +26,7 @@ public sealed class SoloReferenceDataService<T> : IReferenceDataService<T> where
     /// <inheritdoc/>
     public Task<IReadOnlyList<T>> FindAsync(Func<T, bool> predicate)
     {
-        IReadOnlyList<T> results = _db.GetCollection<SoloDocument<T>>()
+        IReadOnlyList<T> results = SoloCollections.Of<T>(_db)
             .ToList()
             .Where(d => predicate(d.Data))
             .Select(d => d.Data)
@@ -37,7 +37,7 @@ public sealed class SoloReferenceDataService<T> : IReferenceDataService<T> where
     /// <inheritdoc/>
     public Task<IReadOnlyList<T>> GetAllAsync()
     {
-        IReadOnlyList<T> results = _db.GetCollection<SoloDocument<T>>()
+        IReadOnlyList<T> results = SoloCollections.Of<T>(_db)
             .ToList()
             .ConvertAll(d => d.Data);
         return Task.FromResult(results);
@@ -46,7 +46,7 @@ public sealed class SoloReferenceDataService<T> : IReferenceDataService<T> where
     /// <inheritdoc/>
     public Task<T?> GetByIdAsync(Guid id)
     {
-        T? item = _db.GetCollection<SoloDocument<T>>()
+        T? item = SoloCollections.Of<T>(_db)
             .ToList()
             .FirstOrDefault(d => _getId(d.Data) == id)
             ?.Data;

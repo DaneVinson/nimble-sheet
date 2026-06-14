@@ -11,7 +11,7 @@ public sealed class SoloUserDataService : IUserDataService
     /// <inheritdoc/>
     public Task CreateAsync(User user)
     {
-        _db.GetCollection<SoloDocument<User>>()
+        SoloCollections.Of<User>(_db)
             .Insert(new SoloDocument<User> { Data = user });
         return Task.CompletedTask;
     }
@@ -19,7 +19,7 @@ public sealed class SoloUserDataService : IUserDataService
     /// <inheritdoc/>
     public Task<IReadOnlyList<User>> FindByNameAsync(string name)
     {
-        IReadOnlyList<User> users = _db.GetCollection<SoloDocument<User>>()
+        IReadOnlyList<User> users = SoloCollections.Of<User>(_db)
             .ToList()
             .Where(d => d.Data.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
             .Select(d => d.Data)
@@ -30,7 +30,7 @@ public sealed class SoloUserDataService : IUserDataService
     /// <inheritdoc/>
     public Task<User?> GetByIdAsync(Guid id)
     {
-        User? user = _db.GetCollection<SoloDocument<User>>()
+        User? user = SoloCollections.Of<User>(_db)
             .ToList()
             .FirstOrDefault(d => d.Data.Id == id)
             ?.Data;
@@ -40,7 +40,7 @@ public sealed class SoloUserDataService : IUserDataService
     /// <inheritdoc/>
     public Task UpdateAsync(User user)
     {
-        var col = _db.GetCollection<SoloDocument<User>>();
+        var col = SoloCollections.Of<User>(_db);
         var existing = col.ToList().FirstOrDefault(d => d.Data.Id == user.Id);
         if (existing is not null)
         {
