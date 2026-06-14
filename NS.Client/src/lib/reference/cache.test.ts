@@ -57,4 +57,17 @@ describe('assembleReferenceData', () => {
 		const ancestryCalls = mockGetReferenceCollection.mock.calls.filter((c) => c[0] === 'ancestries');
 		expect(ancestryCalls).toHaveLength(1);
 	});
+
+	it('does not poison the cache on a failed fetch — a later call retries', async () => {
+		mockGetReferenceCollection
+			.mockRejectedValueOnce(new Error('network'))
+			.mockResolvedValue([{ id: 'a' }]);
+
+		await expect(assembleReferenceData(caldra)).rejects.toThrow('network');
+		// Second attempt must re-fetch (cache evicted the rejected promise) and succeed.
+		const refs = await assembleReferenceData(caldra);
+		expect(refs.ancestries).toHaveLength(1);
+		const ancestryCalls = mockGetReferenceCollection.mock.calls.filter((c) => c[0] === 'ancestries');
+		expect(ancestryCalls).toHaveLength(2);
+	});
 });

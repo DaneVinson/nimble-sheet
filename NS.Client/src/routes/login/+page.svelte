@@ -18,7 +18,7 @@
 				await createUser(name, email);
 			}
 			const result = await login(name);
-			setSession({ token: result.token, userId: result.userId });
+			setSession({ name, token: result.token, userId: result.userId });
 			await goto('/heroes');
 		} catch (e) {
 			error =

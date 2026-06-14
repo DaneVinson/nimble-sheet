@@ -22,8 +22,8 @@ afterEach(() => vi.unstubAllGlobals());
 describe('session store', () => {
 	it('round-trips a session through localStorage', async () => {
 		const { session, setSession, clearSession } = await import('./session');
-		setSession({ token: 't', userId: 'u' });
-		expect(get(session)).toEqual({ token: 't', userId: 'u' });
+		setSession({ name: 'Caldra', token: 't', userId: 'u' });
+		expect(get(session)).toEqual({ name: 'Caldra', token: 't', userId: 'u' });
 		expect(localStorage.getItem('ns.session')).toContain('"token":"t"');
 		clearSession();
 		expect(get(session)).toBeNull();

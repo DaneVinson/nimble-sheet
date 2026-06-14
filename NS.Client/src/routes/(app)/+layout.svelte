@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { navigating } from '$app/stores';
-	import { clearSession } from '$lib/auth/session';
+	import { clearSession, session } from '$lib/auth/session';
 
 	let { children } = $props();
 
@@ -17,13 +17,18 @@
 	{/if}
 	<header class="flex items-center justify-between border-b border-slate-800 px-4 py-3">
 		<a href="/heroes" class="text-lg font-bold text-white">NimbleSheets</a>
-		<button
-			type="button"
-			class="text-sm text-slate-400 underline hover:text-slate-200"
-			onclick={logout}
-		>
-			Log out
-		</button>
+		<div class="flex items-center gap-4">
+			{#if $session}
+				<span class="text-sm text-slate-400">{$session.name}</span>
+			{/if}
+			<button
+				type="button"
+				class="text-sm text-slate-400 underline hover:text-slate-200"
+				onclick={logout}
+			>
+				Log out
+			</button>
+		</div>
 	</header>
 	<main>
 		{@render children()}

@@ -2,8 +2,9 @@ import { writable } from 'svelte/store';
 
 const STORAGE_KEY = 'ns.session';
 
-/** The authenticated session: a JWT plus the owning user's id. */
+/** The authenticated session: a JWT plus the owning user's id and display name. */
 export interface Session {
+	name: string;
 	token: string;
 	userId: string;
 }
@@ -14,8 +15,12 @@ function readStorage(): Session | null {
 	if (!raw) return null;
 	try {
 		const parsed = JSON.parse(raw) as Partial<Session>;
-		if (typeof parsed.token === 'string' && typeof parsed.userId === 'string') {
-			return { token: parsed.token, userId: parsed.userId };
+		if (
+			typeof parsed.token === 'string' &&
+			typeof parsed.userId === 'string' &&
+			typeof parsed.name === 'string'
+		) {
+			return { name: parsed.name, token: parsed.token, userId: parsed.userId };
 		}
 	} catch {
 		// Corrupt value — fall through and treat as no session.

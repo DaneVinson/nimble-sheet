@@ -15,7 +15,12 @@ const cache = new Map<ReferenceResource, Promise<unknown[]>>();
 export function getCollection<T>(resource: ReferenceResource): Promise<T[]> {
 	let entry = cache.get(resource);
 	if (!entry) {
-		entry = getReferenceCollection<T>(resource);
+		// Evict on rejection so a transient failure doesn't poison the cache for the
+		// session — the next caller starts a fresh fetch. Still rethrow for this caller.
+		entry = getReferenceCollection<T>(resource).catch((error) => {
+			cache.delete(resource);
+			throw error;
+		});
 		cache.set(resource, entry);
 	}
 	return entry as Promise<T[]>;
