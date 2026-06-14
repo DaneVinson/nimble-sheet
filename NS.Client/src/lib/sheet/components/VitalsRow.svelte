@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { SheetViewModel } from '../viewmodel';
+  import HitDiceTile from './HitDiceTile.svelte';
   import HpTile from './HpTile.svelte';
   import WoundTrack from './WoundTrack.svelte';
 
@@ -17,9 +18,5 @@
     <div class="text-[9px] uppercase tracking-[0.14em] text-slate-400">Init</div>
     <div class="mt-1 text-2xl font-extrabold text-white">{vm.initiative}</div>
   </div>
-  <div class="rounded-lg bg-slate-800 p-2.5 text-center">
-    <div class="text-[9px] uppercase tracking-[0.14em] text-slate-400">Hit Dice</div>
-    <div class="mt-1 text-2xl font-extrabold text-white">{vm.hitDice.die}</div>
-    <div class="text-[10px] text-slate-400">{vm.hitDice.available} / {vm.hitDice.max}</div>
-  </div>
+  <HitDiceTile die={vm.hitDice.die} available={vm.hitDice.available} max={vm.hitDice.max} />
 </div>
