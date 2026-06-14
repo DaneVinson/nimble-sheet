@@ -11,7 +11,7 @@ public sealed class SoloHeroDataService : IHeroDataService
     /// <inheritdoc/>
     public Task DeleteAsync(Guid id)
     {
-        var col = _db.GetCollection<SoloDocument<Hero>>();
+        var col = SoloCollections.Of<Hero>(_db);
         var doc = col.ToList().FirstOrDefault(d => d.Data.Id == id);
         if (doc != null)
             col.Delete(doc.Id);
@@ -21,7 +21,7 @@ public sealed class SoloHeroDataService : IHeroDataService
     /// <inheritdoc/>
     public Task<IReadOnlyList<Hero>> GetAllAsync()
     {
-        IReadOnlyList<Hero> heroes = _db.GetCollection<SoloDocument<Hero>>()
+        IReadOnlyList<Hero> heroes = SoloCollections.Of<Hero>(_db)
             .ToList()
             .ConvertAll(d => d.Data);
         return Task.FromResult(heroes);
@@ -30,7 +30,7 @@ public sealed class SoloHeroDataService : IHeroDataService
     /// <inheritdoc/>
     public Task<Hero?> GetByIdAsync(Guid id)
     {
-        Hero? hero = _db.GetCollection<SoloDocument<Hero>>()
+        Hero? hero = SoloCollections.Of<Hero>(_db)
             .ToList()
             .FirstOrDefault(d => d.Data.Id == id)
             ?.Data;
@@ -40,7 +40,7 @@ public sealed class SoloHeroDataService : IHeroDataService
     /// <inheritdoc/>
     public Task<IReadOnlyList<Hero>> GetByUserAsync(Guid userId)
     {
-        IReadOnlyList<Hero> heroes = _db.GetCollection<SoloDocument<Hero>>()
+        IReadOnlyList<Hero> heroes = SoloCollections.Of<Hero>(_db)
             .ToList()
             .Where(d => d.Data.UserId == userId)
             .Select(d => d.Data)
@@ -51,7 +51,7 @@ public sealed class SoloHeroDataService : IHeroDataService
     /// <inheritdoc/>
     public Task SaveAsync(Hero hero)
     {
-        var col = _db.GetCollection<SoloDocument<Hero>>();
+        var col = SoloCollections.Of<Hero>(_db);
         var existing = col.ToList().FirstOrDefault(d => d.Data.Id == hero.Id);
         if (existing is null)
         {
