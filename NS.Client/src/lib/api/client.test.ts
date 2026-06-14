@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 // `$app/navigation` (goto) resolves to src/test/app-stub.ts via the Vitest alias (Step 0).
-import { ApiError, getHeroes, login } from './client';
+import { ApiError, gainWound, getHeroes, login, spendHitDice, takeDamage } from './client';
 import { clearSession } from '$lib/auth/session';
 
 afterEach(() => {
@@ -30,5 +30,45 @@ describe('getHeroes error mapping', () => {
 	it('throws ApiError on 500', async () => {
 		mockFetch(500, { message: 'boom' });
 		await expect(getHeroes()).rejects.toBeInstanceOf(ApiError);
+	});
+});
+
+function captureFetch(status = 204) {
+	const fetchMock = vi.fn(() => Promise.resolve(new Response(null, { status })));
+	vi.stubGlobal('fetch', fetchMock);
+	return fetchMock;
+}
+
+describe('play-mutation wrappers', () => {
+	it('takeDamage posts the amount to the take-damage route', async () => {
+		const fetchMock = captureFetch(204);
+		await takeDamage('h1', 5);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/heroes/h1/take-damage',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ amount: 5 }) })
+		);
+	});
+
+	it('spendHitDice posts count and healingAmount', async () => {
+		const fetchMock = captureFetch(204);
+		await spendHitDice('h1', 2, 7);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/heroes/h1/spend-hit-dice',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ count: 2, healingAmount: 7 }) })
+		);
+	});
+
+	it('gainWound posts with no body and resolves on 204', async () => {
+		const fetchMock = captureFetch(204);
+		await expect(gainWound('h1')).resolves.toBeUndefined();
+		const [path, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+		expect(path).toBe('/heroes/h1/gain-wound');
+		expect(init.method).toBe('POST');
+		expect(init.body).toBeUndefined();
+	});
+
+	it('surfaces an ApiError on a 400', async () => {
+		captureFetch(400);
+		await expect(takeDamage('h1', 5)).rejects.toBeInstanceOf(ApiError);
 	});
 });
