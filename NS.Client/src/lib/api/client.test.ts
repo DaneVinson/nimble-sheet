@@ -34,7 +34,9 @@ describe('getHeroes error mapping', () => {
 });
 
 function captureFetch(status = 204) {
-	const fetchMock = vi.fn(() => Promise.resolve(new Response(null, { status })));
+	const fetchMock = vi.fn((_input: RequestInfo | URL, _init?: RequestInit) =>
+		Promise.resolve(new Response(null, { status }))
+	);
 	vi.stubGlobal('fetch', fetchMock);
 	return fetchMock;
 }
