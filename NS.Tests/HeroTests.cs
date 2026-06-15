@@ -192,6 +192,19 @@ public sealed class HeroTests
         Assert.True(hero.Weapons.Single().IsEquipped);
     }
 
+    /// <summary>Equipping armor the hero owns flips its equipped flag.</summary>
+    [Fact]
+    public void SetArmorEquipped_WhenArmorPresent_UpdatesFlag()
+    {
+        var hero = TestHero.Create();
+        var armorId = Guid.CreateVersion7();
+        hero.AddArmor(new HeroArmor(armorId, hero.Id, false));
+
+        hero.SetArmorEquipped(armorId, true);
+
+        Assert.True(hero.Armor.Single().IsEquipped);
+    }
+
     private static void UpdateBuildTo(Hero hero, int maxHp, string name) =>
         hero.UpdateBuild(
             ancestryId: Guid.CreateVersion7(),

@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { SheetViewModel } from '../viewmodel';
   import Panel from './Panel.svelte';
+  import ArmorEditor from './ArmorEditor.svelte';
   import WeaponEditor from './WeaponEditor.svelte';
 
   let { vm }: { vm: SheetViewModel } = $props();
@@ -9,17 +10,7 @@
 <div class="grid gap-3 sm:grid-cols-2">
   <WeaponEditor weapons={vm.weapons} />
 
-  <Panel title="Armor" empty={vm.armorItems.length === 0} emptyText="No armor.">
-    <ul class="space-y-2">
-      {#each vm.armorItems as a (a.name)}
-        <li class="text-sm text-slate-200">
-          <span class="font-semibold text-white">{a.name}</span>
-          <span class="text-slate-400">{a.type} · +{a.armorValue}</span>
-          {#if a.isEquipped}<span class="text-green-400"> · equipped</span>{/if}
-        </li>
-      {/each}
-    </ul>
-  </Panel>
+  <ArmorEditor armorItems={vm.armorItems} />
 
   <Panel title="Conditions" empty={vm.conditions.length === 0} emptyText="No active conditions.">
     <ul class="space-y-2">

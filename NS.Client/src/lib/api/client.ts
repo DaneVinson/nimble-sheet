@@ -186,6 +186,30 @@ export function setWeaponEquipped(heroId: string, weaponId: string, isEquipped: 
 	});
 }
 
+/** POST /heroes/{id}/add-armor — add armor from the reference catalog. */
+export function addArmor(heroId: string, armorId: string, isEquipped: boolean): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/add-armor`, {
+		method: 'POST',
+		body: JSON.stringify({ armorId, isEquipped })
+	});
+}
+
+/** POST /heroes/{id}/remove-armor — remove armor by its reference id. */
+export function removeArmor(heroId: string, armorId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/remove-armor`, {
+		method: 'POST',
+		body: JSON.stringify({ armorId })
+	});
+}
+
+/** POST /heroes/{id}/set-armor-equipped — equip or unequip armor. */
+export function setArmorEquipped(heroId: string, armorId: string, isEquipped: boolean): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/set-armor-equipped`, {
+		method: 'POST',
+		body: JSON.stringify({ armorId, isEquipped })
+	});
+}
+
 /** POST /heroes — create a hero from build attributes; returns the new id. */
 export function createHero(build: HeroBuildModel): Promise<{ id: string }> {
 	return apiFetch<{ id: string }>('/heroes', {

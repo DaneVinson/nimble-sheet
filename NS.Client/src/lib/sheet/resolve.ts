@@ -169,6 +169,7 @@ export function resolveSheet(hero: Hero, reference: ReferenceData): SheetViewMod
     armorItems: hero.armor.map((a) => {
       const ref = armor.get(a.armorId);
       return {
+        armorId: a.armorId,
         name: ref?.name ?? 'Unknown armor',
         type: ref?.armorType ?? 'Cloth',
         armorValue: ref?.armorValue ?? 0,

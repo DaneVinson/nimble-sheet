@@ -30,6 +30,7 @@ export interface WeaponViewModel {
 }
 
 export interface ArmorViewModel {
+  armorId: string;
   name: string;
   type: ArmorType;
   armorValue: number;
