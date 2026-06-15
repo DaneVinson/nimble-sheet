@@ -91,6 +91,82 @@ public sealed class HeroTests
         Assert.Equal(10, hero.CurrentHp);
     }
 
+    /// <summary>Negative damage is rejected rather than silently healing the hero.</summary>
+    [Fact]
+    public void TakeDamage_WhenAmountNegative_Throws()
+    {
+        var hero = TestHero.Create();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => hero.TakeDamage(-1));
+    }
+
+    /// <summary>Negative healing is rejected.</summary>
+    [Fact]
+    public void Heal_WhenAmountNegative_Throws()
+    {
+        var hero = TestHero.Create();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => hero.Heal(-1));
+    }
+
+    /// <summary>Negative temporary hit points are rejected.</summary>
+    [Fact]
+    public void GrantTempHp_WhenAmountNegative_Throws()
+    {
+        var hero = TestHero.Create();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => hero.GrantTempHp(-1));
+    }
+
+    /// <summary>Granting zero temporary hit points is allowed (a no-op).</summary>
+    [Fact]
+    public void GrantTempHp_WhenAmountZero_DoesNotThrow()
+    {
+        var hero = TestHero.Create();
+
+        hero.GrantTempHp(0);
+
+        Assert.Equal(0, hero.TempHp);
+    }
+
+    /// <summary>Spending negative mana is rejected.</summary>
+    [Fact]
+    public void SpendMana_WhenAmountNegative_Throws()
+    {
+        var hero = TestHero.Create();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => hero.SpendMana(-1));
+    }
+
+    /// <summary>A negative hit-dice count is rejected.</summary>
+    [Fact]
+    public void SpendHitDice_WhenCountNegative_Throws()
+    {
+        var hero = TestHero.Create();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => hero.SpendHitDice(-1, 5));
+    }
+
+    /// <summary>A negative healing amount on a hit-dice spend is rejected.</summary>
+    [Fact]
+    public void SpendHitDice_WhenHealingNegative_Throws()
+    {
+        var hero = TestHero.Create();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => hero.SpendHitDice(1, -1));
+    }
+
+    /// <summary>Spending hit dice with zero healing is allowed (a no-op heal).</summary>
+    [Fact]
+    public void SpendHitDice_WhenHealingZero_DoesNotThrow()
+    {
+        var hero = TestHero.Create();
+
+        hero.SpendHitDice(1, 0);
+
+        Assert.Equal(0, hero.HitDiceAvailable);
+    }
+
     private static void UpdateBuildTo(Hero hero, int maxHp, string name) =>
         hero.UpdateBuild(
             ancestryId: Guid.CreateVersion7(),

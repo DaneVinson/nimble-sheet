@@ -30,3 +30,14 @@ public sealed class SpendHitDiceEndpoint : Endpoint<SpendHitDiceRequest>
 /// <param name="Count">The number of hit dice to spend.</param>
 /// <param name="HealingAmount">The total healing rolled on the hit dice.</param>
 public sealed record SpendHitDiceRequest(Guid HeroId, int Count, int HealingAmount);
+
+/// <summary>Validates <see cref="SpendHitDiceRequest"/>.</summary>
+public sealed class SpendHitDiceValidator : Validator<SpendHitDiceRequest>
+{
+    /// <summary>Initializes validation rules for spending hit dice.</summary>
+    public SpendHitDiceValidator()
+    {
+        RuleFor(r => r.Count).GreaterThan(0);
+        RuleFor(r => r.HealingAmount).GreaterThanOrEqualTo(0);
+    }
+}

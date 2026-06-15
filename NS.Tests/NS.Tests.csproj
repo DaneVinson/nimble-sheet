@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NS.Domain\NS.Domain.csproj" />
+    <ProjectReference Include="..\NS.FastEndpoints\NS.FastEndpoints.csproj" />
     <ProjectReference Include="..\NS.SoloDB\NS.SoloDB.csproj" />
   </ItemGroup>
 

@@ -233,10 +233,18 @@ public sealed class Hero
     public void GainWound() => CurrentWounds = Math.Min(CurrentWounds + 1, 6);
 
     /// <summary>Grants temporary hit points. Temp HP does not stack; the greater of the current and granted values is kept.</summary>
-    public void GrantTempHp(int amount) => TempHp = Math.Max(TempHp, amount);
+    public void GrantTempHp(int amount)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(amount);
+        TempHp = Math.Max(TempHp, amount);
+    }
 
     /// <summary>Restores the specified amount of hit points, up to the hero's maximum.</summary>
-    public void Heal(int amount) => CurrentHp = Math.Min(CurrentHp + amount, MaxHp);
+    public void Heal(int amount)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(amount);
+        CurrentHp = Math.Min(CurrentHp + amount, MaxHp);
+    }
 
     /// <summary>Heals one wound.</summary>
     public void HealWound() => CurrentWounds = Math.Max(CurrentWounds - 1, 0);
@@ -297,6 +305,8 @@ public sealed class Hero
     /// <summary>Spends the specified number of hit dice and heals the hero by the total rolled amount.</summary>
     public void SpendHitDice(int count, int healingAmount)
     {
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
+        ArgumentOutOfRangeException.ThrowIfNegative(healingAmount);
         HitDiceAvailable = Math.Max(HitDiceAvailable - count, 0);
         Heal(healingAmount);
     }
@@ -304,6 +314,7 @@ public sealed class Hero
     /// <summary>Spends the specified amount of mana. Has no effect for non-casters.</summary>
     public void SpendMana(int amount)
     {
+        ArgumentOutOfRangeException.ThrowIfNegative(amount);
         if (CurrentMana.HasValue)
             CurrentMana = Math.Max(CurrentMana.Value - amount, 0);
     }
@@ -311,6 +322,7 @@ public sealed class Hero
     /// <summary>Reduces the hero's hit points by the specified amount, flooring at zero. Temporary hit points absorb damage first. When reduced to zero the hero enters the dying state.</summary>
     public void TakeDamage(int amount)
     {
+        ArgumentOutOfRangeException.ThrowIfNegative(amount);
         if (TempHp > 0)
         {
             var absorbed = Math.Min(TempHp, amount);

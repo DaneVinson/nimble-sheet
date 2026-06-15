@@ -29,3 +29,13 @@ public sealed class SpendManaEndpoint : Endpoint<SpendManaRequest>
 /// <param name="HeroId">The hero's unique identifier (route).</param>
 /// <param name="Amount">The amount of mana to spend.</param>
 public sealed record SpendManaRequest(Guid HeroId, int Amount);
+
+/// <summary>Validates <see cref="SpendManaRequest"/>.</summary>
+public sealed class SpendManaValidator : Validator<SpendManaRequest>
+{
+    /// <summary>Initializes validation rules for spending mana.</summary>
+    public SpendManaValidator()
+    {
+        RuleFor(r => r.Amount).GreaterThan(0);
+    }
+}

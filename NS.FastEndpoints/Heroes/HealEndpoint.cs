@@ -29,3 +29,13 @@ public sealed class HealEndpoint : Endpoint<HealRequest>
 /// <param name="HeroId">The hero's unique identifier (route).</param>
 /// <param name="Amount">The amount of hit points to restore.</param>
 public sealed record HealRequest(Guid HeroId, int Amount);
+
+/// <summary>Validates <see cref="HealRequest"/>.</summary>
+public sealed class HealValidator : Validator<HealRequest>
+{
+    /// <summary>Initializes validation rules for healing.</summary>
+    public HealValidator()
+    {
+        RuleFor(r => r.Amount).GreaterThan(0);
+    }
+}
