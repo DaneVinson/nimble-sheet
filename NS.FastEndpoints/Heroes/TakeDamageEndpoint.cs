@@ -29,3 +29,13 @@ public sealed class TakeDamageEndpoint : Endpoint<TakeDamageRequest>
 /// <param name="HeroId">The hero's unique identifier (route).</param>
 /// <param name="Amount">The amount of damage to apply.</param>
 public sealed record TakeDamageRequest(Guid HeroId, int Amount);
+
+/// <summary>Validates <see cref="TakeDamageRequest"/>.</summary>
+public sealed class TakeDamageValidator : Validator<TakeDamageRequest>
+{
+    /// <summary>Initializes validation rules for applying damage.</summary>
+    public TakeDamageValidator()
+    {
+        RuleFor(r => r.Amount).GreaterThan(0);
+    }
+}

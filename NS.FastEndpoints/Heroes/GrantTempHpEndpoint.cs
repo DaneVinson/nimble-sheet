@@ -29,3 +29,13 @@ public sealed class GrantTempHpEndpoint : Endpoint<GrantTempHpRequest>
 /// <param name="HeroId">The hero's unique identifier (route).</param>
 /// <param name="Amount">The amount of temporary hit points to grant.</param>
 public sealed record GrantTempHpRequest(Guid HeroId, int Amount);
+
+/// <summary>Validates <see cref="GrantTempHpRequest"/>.</summary>
+public sealed class GrantTempHpValidator : Validator<GrantTempHpRequest>
+{
+    /// <summary>Initializes validation rules for granting temporary hit points.</summary>
+    public GrantTempHpValidator()
+    {
+        RuleFor(r => r.Amount).GreaterThanOrEqualTo(0);
+    }
+}
