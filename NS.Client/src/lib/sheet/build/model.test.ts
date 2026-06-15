@@ -1,16 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { blankBuildModel, heroToBuildModel, normalizeBuild } from './model';
+import { blankBuildModel, heroToBuildModel, hitDieFaceValue, normalizeBuild } from './model';
 import { caldra } from '$lib/fixtures/caldra';
+
+describe('hitDieFaceValue', () => {
+	it('returns the numeric face value of a hit die', () => {
+		expect(hitDieFaceValue('D4')).toBe(4);
+		expect(hitDieFaceValue('D8')).toBe(8);
+		expect(hitDieFaceValue('D12')).toBe(12);
+	});
+});
 
 describe('blankBuildModel', () => {
 	it('returns level-1 defaults with empty ancestry and no mana', () => {
 		const m = blankBuildModel();
 		expect(m.ancestryId).toBe('');
-		expect(m.maxHp).toBe(1);
 		expect(m.maxMana).toBeNull();
 		expect(m.heroClass).toBe('Berserker');
 		expect(m.combatStats.hitDieType).toBe('D8');
 		expect(m.stats).toEqual({ dexterity: 0, intelligence: 0, strength: 0, will: 0 });
+	});
+
+	it('defaults maxHp to the hit die face value (D8 → 8), not 1', () => {
+		const m = blankBuildModel();
+		expect(m.maxHp).toBe(8);
+		expect(m.maxHp).toBe(hitDieFaceValue(m.combatStats.hitDieType));
 	});
 });
 

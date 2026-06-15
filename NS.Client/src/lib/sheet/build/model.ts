@@ -1,6 +1,11 @@
 import type {
-	ClassResources, Hero, HeroClass, HeroCombatStats, HeroSaves, HeroSkills, HeroStats
+	ClassResources, DieType, Hero, HeroClass, HeroCombatStats, HeroSaves, HeroSkills, HeroStats
 } from '$lib/api/types';
+
+/** The numeric face value of a hit die (e.g. 'D8' → 8); used as a new hero's default Max HP. */
+export function hitDieFaceValue(dieType: DieType): number {
+	return Number(dieType.slice(1));
+}
 
 /** The client-side editable shape of a hero's build attributes (mirrors the API's HeroBuildRequest). */
 export interface HeroBuildModel {
@@ -19,14 +24,16 @@ export interface HeroBuildModel {
 
 /** A level-1 default build for the create form. */
 export function blankBuildModel(): HeroBuildModel {
+	// HP and the hit die default together so a new hero starts at the die's face value (D8 → 8), not 1.
+	const defaultHitDie: DieType = 'D8';
 	return {
 		name: '',
 		ancestryId: '',
 		backgroundId: null,
 		heroClass: 'Berserker',
-		maxHp: 1,
+		maxHp: hitDieFaceValue(defaultHitDie),
 		maxMana: null,
-		combatStats: { armor: 0, hitDieType: 'D8', initiativeBonus: 0, speed: 6 },
+		combatStats: { armor: 0, hitDieType: defaultHitDie, initiativeBonus: 0, speed: 6 },
 		resources: {
 			judgmentDiceCount: null,
 			judgmentDiceType: null,
