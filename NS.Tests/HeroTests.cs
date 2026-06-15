@@ -205,6 +205,19 @@ public sealed class HeroTests
         Assert.True(hero.Armor.Single().IsEquipped);
     }
 
+    /// <summary>Equipping a magic item the hero owns flips its equipped flag.</summary>
+    [Fact]
+    public void SetMagicItemEquipped_WhenItemPresent_UpdatesFlag()
+    {
+        var hero = TestHero.Create();
+        var itemId = Guid.CreateVersion7();
+        hero.AddMagicItem(new HeroMagicItem(null, hero.Id, false, itemId));
+
+        hero.SetMagicItemEquipped(itemId, true);
+
+        Assert.True(hero.MagicItems.Single().IsEquipped);
+    }
+
     private static void UpdateBuildTo(Hero hero, int maxHp, string name) =>
         hero.UpdateBuild(
             ancestryId: Guid.CreateVersion7(),

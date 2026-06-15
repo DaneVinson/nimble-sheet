@@ -66,6 +66,7 @@ export interface ClassResourceViewModel {
 }
 
 export interface MagicItemViewModel {
+  magicItemId: string;
   name: string;
   rarity: string;
   effect: string;

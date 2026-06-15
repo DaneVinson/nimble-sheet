@@ -210,6 +210,30 @@ export function setArmorEquipped(heroId: string, armorId: string, isEquipped: bo
 	});
 }
 
+/** POST /heroes/{id}/add-magic-item — add a magic item from the reference catalog. */
+export function addMagicItem(heroId: string, magicItemId: string, isEquipped: boolean, chargesRemaining: number | null): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/add-magic-item`, {
+		method: 'POST',
+		body: JSON.stringify({ magicItemId, isEquipped, chargesRemaining })
+	});
+}
+
+/** POST /heroes/{id}/remove-magic-item — remove a magic item by its reference id. */
+export function removeMagicItem(heroId: string, magicItemId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/remove-magic-item`, {
+		method: 'POST',
+		body: JSON.stringify({ magicItemId })
+	});
+}
+
+/** POST /heroes/{id}/set-magic-item-equipped — equip or unequip a magic item. */
+export function setMagicItemEquipped(heroId: string, magicItemId: string, isEquipped: boolean): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/set-magic-item-equipped`, {
+		method: 'POST',
+		body: JSON.stringify({ magicItemId, isEquipped })
+	});
+}
+
 /** POST /heroes — create a hero from build attributes; returns the new id. */
 export function createHero(build: HeroBuildModel): Promise<{ id: string }> {
 	return apiFetch<{ id: string }>('/heroes', {

@@ -1,7 +1,8 @@
 import { invalidateAll } from '$app/navigation';
 import {
-	addArmor, addWeapon, gainWound, grantTempHp, heal, healWound, recoverAll, removeArmor,
-	removeWeapon, setArmorEquipped, setWeaponEquipped, spendHitDice, spendMana, takeDamage
+	addArmor, addMagicItem, addWeapon, gainWound, grantTempHp, heal, healWound, recoverAll,
+	removeArmor, removeMagicItem, removeWeapon, setArmorEquipped, setMagicItemEquipped,
+	setWeaponEquipped, spendHitDice, spendMana, takeDamage
 } from '$lib/api/client';
 import { runAction } from './runAction';
 
@@ -26,6 +27,9 @@ export interface HeroActions {
 	addArmor(armorId: string, isEquipped: boolean): Promise<void>;
 	removeArmor(armorId: string): Promise<void>;
 	setArmorEquipped(armorId: string, isEquipped: boolean): Promise<void>;
+	addMagicItem(magicItemId: string, isEquipped: boolean, chargesRemaining: number | null): Promise<void>;
+	removeMagicItem(magicItemId: string): Promise<void>;
+	setMagicItemEquipped(magicItemId: string, isEquipped: boolean): Promise<void>;
 }
 
 /** Create the actions bound to a (lazily-read) hero id. Each action POSTs then re-fetches. */
@@ -56,6 +60,9 @@ export function createHeroActions(getHeroId: () => string): HeroActions {
 		setWeaponEquipped: (weaponId, isEquipped) => run(() => setWeaponEquipped(getHeroId(), weaponId, isEquipped)),
 		addArmor: (armorId, isEquipped) => run(() => addArmor(getHeroId(), armorId, isEquipped)),
 		removeArmor: (armorId) => run(() => removeArmor(getHeroId(), armorId)),
-		setArmorEquipped: (armorId, isEquipped) => run(() => setArmorEquipped(getHeroId(), armorId, isEquipped))
+		setArmorEquipped: (armorId, isEquipped) => run(() => setArmorEquipped(getHeroId(), armorId, isEquipped)),
+		addMagicItem: (magicItemId, isEquipped, chargesRemaining) => run(() => addMagicItem(getHeroId(), magicItemId, isEquipped, chargesRemaining)),
+		removeMagicItem: (magicItemId) => run(() => removeMagicItem(getHeroId(), magicItemId)),
+		setMagicItemEquipped: (magicItemId, isEquipped) => run(() => setMagicItemEquipped(getHeroId(), magicItemId, isEquipped))
 	};
 }

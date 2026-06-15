@@ -189,6 +189,7 @@ export function resolveSheet(hero: Hero, reference: ReferenceData): SheetViewMod
     magicItems: hero.magicItems.map((m) => {
       const ref = magicItems.get(m.magicItemId);
       return {
+        magicItemId: m.magicItemId,
         name: ref?.name ?? 'Unknown item',
         rarity: ref?.rarity ?? '',
         effect: ref?.effect ?? '',
