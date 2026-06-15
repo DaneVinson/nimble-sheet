@@ -6,6 +6,7 @@
 	import { HERO_ACTIONS, type HeroActions } from '../heroActions.svelte';
 	import Panel from './Panel.svelte';
 	import TilePopover from './TilePopover.svelte';
+	import { editorButton } from './styles';
 
 	let { weapons }: { weapons: WeaponViewModel[] } = $props();
 
@@ -14,17 +15,21 @@
 	let catalog = $state<Weapon[]>([]);
 	let selectedId = $state('');
 	let equipped = $state(false);
+	let catalogError = $state<string | null>(null);
 
 	const ownedIds = $derived(new Set(weapons.map((w) => w.weaponId)));
 	const available = $derived(catalog.filter((w) => !ownedIds.has(w.id)));
 
-	const btn = 'rounded bg-slate-700 px-2 py-1 text-xs font-semibold text-white hover:bg-slate-600 disabled:opacity-50';
-
 	async function loadCatalog() {
 		selectedId = '';
 		equipped = false;
+		catalogError = null;
 		if (catalog.length === 0) {
-			catalog = await getCollection<Weapon>('weapons');
+			try {
+				catalog = await getCollection<Weapon>('weapons');
+			} catch {
+				catalogError = 'Failed to load weapons catalog.';
+			}
 		}
 	}
 
@@ -49,10 +54,10 @@
 				</div>
 				{#if actions}
 					<div class="flex shrink-0 gap-1">
-						<button type="button" class={btn} disabled={actions.busy} onclick={() => actions.setWeaponEquipped(w.weaponId, !w.isEquipped)}>
+						<button type="button" class={editorButton} disabled={actions.busy} onclick={() => actions.setWeaponEquipped(w.weaponId, !w.isEquipped)}>
 							{w.isEquipped ? 'Unequip' : 'Equip'}
 						</button>
-						<button type="button" class={btn} disabled={actions.busy} aria-label={`Remove ${w.name}`} onclick={() => actions.removeWeapon(w.weaponId)}>✕</button>
+						<button type="button" class={editorButton} disabled={actions.busy} aria-label={`Remove ${w.name}`} onclick={() => actions.removeWeapon(w.weaponId)}>✕</button>
 					</div>
 				{/if}
 			</li>
@@ -62,7 +67,7 @@
 	{#if actions}
 		<div class="mt-2">
 			<TilePopover label="Add weapon" onopen={loadCatalog}>
-				{#snippet trigger()}<span class={btn}>+ Add</span>{/snippet}
+				{#snippet trigger()}<span class={editorButton}>+ Add</span>{/snippet}
 				{#snippet content()}
 					<select bind:value={selectedId} class="w-full rounded bg-slate-900 px-1.5 py-1 text-xs text-white" aria-label="Weapon to add">
 						<option value="">— select —</option>
@@ -71,7 +76,8 @@
 					<label class="mt-2 flex items-center gap-1 text-xs text-slate-300">
 						<input type="checkbox" bind:checked={equipped} /> Equipped
 					</label>
-					<button type="button" class={`${btn} mt-2 w-full`} disabled={actions.busy || selectedId === ''} onclick={add}>Add</button>
+					<button type="button" class={`${editorButton} mt-2 w-full`} disabled={actions.busy || selectedId === ''} onclick={add}>Add</button>
+					{#if catalogError}<p class="mt-1 text-[11px] text-red-400">{catalogError}</p>{/if}
 					{#if actions.error}<p class="mt-1 text-[11px] text-red-400">{actions.error}</p>{/if}
 				{/snippet}
 			</TilePopover>
