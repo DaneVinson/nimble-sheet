@@ -299,8 +299,38 @@ public sealed class Hero
     public void RemoveWeapon(Guid weaponId) =>
         _weapons.RemoveAll(w => w.WeaponId == weaponId);
 
+    /// <summary>Sets whether the referenced armor item is equipped; no-op if the hero does not have it.</summary>
+    public void SetArmorEquipped(Guid armorId, bool isEquipped)
+    {
+        var index = _armor.FindIndex(a => a.ArmorId == armorId);
+        if (index >= 0)
+        {
+            _armor[index] = _armor[index] with { IsEquipped = isEquipped };
+        }
+    }
+
+    /// <summary>Sets whether the referenced magic item is equipped; no-op if the hero does not have it.</summary>
+    public void SetMagicItemEquipped(Guid magicItemId, bool isEquipped)
+    {
+        var index = _magicItems.FindIndex(m => m.MagicItemId == magicItemId);
+        if (index >= 0)
+        {
+            _magicItems[index] = _magicItems[index] with { IsEquipped = isEquipped };
+        }
+    }
+
     /// <summary>Sets the hero's subclass, chosen at level 3.</summary>
     public void SetSubclass(string subclass) => Subclass = subclass;
+
+    /// <summary>Sets whether the referenced weapon is equipped; no-op if the hero does not have it.</summary>
+    public void SetWeaponEquipped(Guid weaponId, bool isEquipped)
+    {
+        var index = _weapons.FindIndex(w => w.WeaponId == weaponId);
+        if (index >= 0)
+        {
+            _weapons[index] = _weapons[index] with { IsEquipped = isEquipped };
+        }
+    }
 
     /// <summary>Spends the specified number of hit dice and heals the hero by the total rolled amount.</summary>
     public void SpendHitDice(int count, int healingAmount)

@@ -154,6 +154,7 @@ export function resolveSheet(hero: Hero, reference: ReferenceData): SheetViewMod
     weapons: hero.weapons.map((w) => {
       const ref = weapons.get(w.weaponId);
       return {
+        weaponId: w.weaponId,
         name: ref?.name ?? 'Unknown weapon',
         damage: ref?.damageExpression ?? '—',
         damageType: ref?.damageType ?? 'Bludgeoning',

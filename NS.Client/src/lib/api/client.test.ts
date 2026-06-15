@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 // `$app/navigation` (goto) resolves to src/test/app-stub.ts via the Vitest alias (Step 0).
-import { ApiError, createHero, gainWound, getHeroes, login, spendHitDice, takeDamage, updateHero } from './client';
+import { addWeapon, ApiError, createHero, gainWound, getHeroes, login, removeWeapon, setWeaponEquipped, spendHitDice, takeDamage, updateHero } from './client';
 import { clearSession } from '$lib/auth/session';
 import { blankBuildModel } from '$lib/sheet/build/model';
 
@@ -73,6 +73,35 @@ describe('play-mutation wrappers', () => {
 	it('surfaces an ApiError on a 400', async () => {
 		captureFetch(400);
 		await expect(takeDamage('h1', 5)).rejects.toBeInstanceOf(ApiError);
+	});
+});
+
+describe('collection wrappers', () => {
+	it('addWeapon posts weaponId/isEquipped/notes', async () => {
+		const fetchMock = captureFetch(204);
+		await addWeapon('h1', 'w1', true, null);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/add-weapon',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ weaponId: 'w1', isEquipped: true, notes: null }) })
+		);
+	});
+
+	it('removeWeapon posts the weaponId', async () => {
+		const fetchMock = captureFetch(204);
+		await removeWeapon('h1', 'w1');
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/remove-weapon',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ weaponId: 'w1' }) })
+		);
+	});
+
+	it('setWeaponEquipped posts weaponId/isEquipped', async () => {
+		const fetchMock = captureFetch(204);
+		await setWeaponEquipped('h1', 'w1', false);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/set-weapon-equipped',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ weaponId: 'w1', isEquipped: false }) })
+		);
 	});
 });
 

@@ -1,6 +1,7 @@
 import { invalidateAll } from '$app/navigation';
 import {
-	gainWound, grantTempHp, heal, healWound, recoverAll, spendHitDice, spendMana, takeDamage
+	addWeapon, gainWound, grantTempHp, heal, healWound, recoverAll, removeWeapon,
+	setWeaponEquipped, spendHitDice, spendMana, takeDamage
 } from '$lib/api/client';
 import { runAction } from './runAction';
 
@@ -19,6 +20,9 @@ export interface HeroActions {
 	spendHitDice(count: number, healingAmount: number): Promise<void>;
 	spendMana(amount: number): Promise<void>;
 	recoverAll(): Promise<void>;
+	addWeapon(weaponId: string, isEquipped: boolean, notes: string | null): Promise<void>;
+	removeWeapon(weaponId: string): Promise<void>;
+	setWeaponEquipped(weaponId: string, isEquipped: boolean): Promise<void>;
 }
 
 /** Create the actions bound to a (lazily-read) hero id. Each action POSTs then re-fetches. */
@@ -43,6 +47,9 @@ export function createHeroActions(getHeroId: () => string): HeroActions {
 		healWound: () => run(() => healWound(getHeroId())),
 		spendHitDice: (count, healingAmount) => run(() => spendHitDice(getHeroId(), count, healingAmount)),
 		spendMana: (amount) => run(() => spendMana(getHeroId(), amount)),
-		recoverAll: () => run(() => recoverAll(getHeroId()))
+		recoverAll: () => run(() => recoverAll(getHeroId())),
+		addWeapon: (weaponId, isEquipped, notes) => run(() => addWeapon(getHeroId(), weaponId, isEquipped, notes)),
+		removeWeapon: (weaponId) => run(() => removeWeapon(getHeroId(), weaponId)),
+		setWeaponEquipped: (weaponId, isEquipped) => run(() => setWeaponEquipped(getHeroId(), weaponId, isEquipped))
 	};
 }

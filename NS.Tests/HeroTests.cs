@@ -167,6 +167,31 @@ public sealed class HeroTests
         Assert.Equal(0, hero.HitDiceAvailable);
     }
 
+    /// <summary>Equipping a weapon the hero owns flips its equipped flag.</summary>
+    [Fact]
+    public void SetWeaponEquipped_WhenWeaponPresent_UpdatesFlag()
+    {
+        var hero = TestHero.Create();
+        var weaponId = Guid.CreateVersion7();
+        hero.AddWeapon(new HeroWeapon(hero.Id, false, null, weaponId));
+
+        hero.SetWeaponEquipped(weaponId, true);
+
+        Assert.True(hero.Weapons.Single().IsEquipped);
+    }
+
+    /// <summary>Setting equipped on an unknown weapon id changes nothing.</summary>
+    [Fact]
+    public void SetWeaponEquipped_WhenWeaponAbsent_IsNoOp()
+    {
+        var hero = TestHero.Create();
+        hero.AddWeapon(new HeroWeapon(hero.Id, true, null, Guid.CreateVersion7()));
+
+        hero.SetWeaponEquipped(Guid.CreateVersion7(), false);
+
+        Assert.True(hero.Weapons.Single().IsEquipped);
+    }
+
     private static void UpdateBuildTo(Hero hero, int maxHp, string name) =>
         hero.UpdateBuild(
             ancestryId: Guid.CreateVersion7(),

@@ -17,6 +17,7 @@ export interface SkillViewModel {
 }
 
 export interface WeaponViewModel {
+  weaponId: string;
   name: string;
   damage: string;        // '1d6+2'
   damageType: DamageType;

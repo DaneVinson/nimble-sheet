@@ -160,6 +160,32 @@ export function recoverAll(heroId: string): Promise<void> {
 	return apiFetch<void>(`/heroes/${heroId}/recover-all-resources`, { method: 'POST' });
 }
 
+// --- collection mutations ---
+
+/** POST /heroes/{id}/add-weapon — add a weapon from the reference catalog. */
+export function addWeapon(heroId: string, weaponId: string, isEquipped: boolean, notes: string | null): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/add-weapon`, {
+		method: 'POST',
+		body: JSON.stringify({ weaponId, isEquipped, notes })
+	});
+}
+
+/** POST /heroes/{id}/remove-weapon — remove a weapon by its reference id. */
+export function removeWeapon(heroId: string, weaponId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/remove-weapon`, {
+		method: 'POST',
+		body: JSON.stringify({ weaponId })
+	});
+}
+
+/** POST /heroes/{id}/set-weapon-equipped — equip or unequip a weapon. */
+export function setWeaponEquipped(heroId: string, weaponId: string, isEquipped: boolean): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/set-weapon-equipped`, {
+		method: 'POST',
+		body: JSON.stringify({ weaponId, isEquipped })
+	});
+}
+
 /** POST /heroes — create a hero from build attributes; returns the new id. */
 export function createHero(build: HeroBuildModel): Promise<{ id: string }> {
 	return apiFetch<{ id: string }>('/heroes', {
