@@ -234,6 +234,22 @@ export function setMagicItemEquipped(heroId: string, magicItemId: string, isEqui
 	});
 }
 
+/** POST /heroes/{id}/add-spell — learn a spell from the reference catalog. */
+export function addSpell(heroId: string, spellId: string, tierUnlocked: number, notes: string | null): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/add-spell`, {
+		method: 'POST',
+		body: JSON.stringify({ spellId, tierUnlocked, notes })
+	});
+}
+
+/** POST /heroes/{id}/remove-spell — forget a spell by its reference id. */
+export function removeSpell(heroId: string, spellId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/remove-spell`, {
+		method: 'POST',
+		body: JSON.stringify({ spellId })
+	});
+}
+
 /** POST /heroes — create a hero from build attributes; returns the new id. */
 export function createHero(build: HeroBuildModel): Promise<{ id: string }> {
 	return apiFetch<{ id: string }>('/heroes', {

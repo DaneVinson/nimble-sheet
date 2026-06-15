@@ -1,7 +1,7 @@
 import { invalidateAll } from '$app/navigation';
 import {
-	addArmor, addMagicItem, addWeapon, gainWound, grantTempHp, heal, healWound, recoverAll,
-	removeArmor, removeMagicItem, removeWeapon, setArmorEquipped, setMagicItemEquipped,
+	addArmor, addMagicItem, addSpell, addWeapon, gainWound, grantTempHp, heal, healWound, recoverAll,
+	removeArmor, removeMagicItem, removeSpell, removeWeapon, setArmorEquipped, setMagicItemEquipped,
 	setWeaponEquipped, spendHitDice, spendMana, takeDamage
 } from '$lib/api/client';
 import { runAction } from './runAction';
@@ -30,6 +30,8 @@ export interface HeroActions {
 	addMagicItem(magicItemId: string, isEquipped: boolean, chargesRemaining: number | null): Promise<void>;
 	removeMagicItem(magicItemId: string): Promise<void>;
 	setMagicItemEquipped(magicItemId: string, isEquipped: boolean): Promise<void>;
+	addSpell(spellId: string, tierUnlocked: number, notes: string | null): Promise<void>;
+	removeSpell(spellId: string): Promise<void>;
 }
 
 /** Create the actions bound to a (lazily-read) hero id. Each action POSTs then re-fetches. */
@@ -63,6 +65,8 @@ export function createHeroActions(getHeroId: () => string): HeroActions {
 		setArmorEquipped: (armorId, isEquipped) => run(() => setArmorEquipped(getHeroId(), armorId, isEquipped)),
 		addMagicItem: (magicItemId, isEquipped, chargesRemaining) => run(() => addMagicItem(getHeroId(), magicItemId, isEquipped, chargesRemaining)),
 		removeMagicItem: (magicItemId) => run(() => removeMagicItem(getHeroId(), magicItemId)),
-		setMagicItemEquipped: (magicItemId, isEquipped) => run(() => setMagicItemEquipped(getHeroId(), magicItemId, isEquipped))
+		setMagicItemEquipped: (magicItemId, isEquipped) => run(() => setMagicItemEquipped(getHeroId(), magicItemId, isEquipped)),
+		addSpell: (spellId, tierUnlocked, notes) => run(() => addSpell(getHeroId(), spellId, tierUnlocked, notes)),
+		removeSpell: (spellId) => run(() => removeSpell(getHeroId(), spellId))
 	};
 }

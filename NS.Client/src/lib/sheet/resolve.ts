@@ -79,12 +79,12 @@ function buildSpellsByTier(hero: Hero, spells: Map<string, Spell>): SpellTierGro
     const spell = spells.get(known.spellId);
     if (!spell) {
       return {
-        name: 'Unknown spell', tier: known.tierUnlocked, school: 'Fire', manaCost: 0,
+        spellId: known.spellId, name: 'Unknown spell', tier: known.tierUnlocked, school: 'Fire', manaCost: 0,
         actionCost: 1, damage: null, damageType: null, description: '', notes: known.notes
       };
     }
     return {
-      name: spell.name, tier: spell.tier, school: spell.school, manaCost: spell.manaCost,
+      spellId: known.spellId, name: spell.name, tier: spell.tier, school: spell.school, manaCost: spell.manaCost,
       actionCost: spell.actionCost, damage: spell.damageExpression, damageType: spell.damageType,
       description: spell.description, notes: known.notes
     };

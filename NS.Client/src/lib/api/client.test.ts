@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 // `$app/navigation` (goto) resolves to src/test/app-stub.ts via the Vitest alias (Step 0).
-import { addArmor, addMagicItem, addWeapon, ApiError, createHero, gainWound, getHeroes, login, removeWeapon, setWeaponEquipped, spendHitDice, takeDamage, updateHero } from './client';
+import { addArmor, addMagicItem, addSpell, addWeapon, ApiError, createHero, gainWound, getHeroes, login, removeWeapon, setWeaponEquipped, spendHitDice, takeDamage, updateHero } from './client';
 import { clearSession } from '$lib/auth/session';
 import { blankBuildModel } from '$lib/sheet/build/model';
 
@@ -119,6 +119,15 @@ describe('collection wrappers', () => {
 		expect(fetchMock).toHaveBeenCalledWith(
 			'/api/heroes/h1/add-magic-item',
 			expect.objectContaining({ method: 'POST', body: JSON.stringify({ magicItemId: 'm1', isEquipped: false, chargesRemaining: 3 }) })
+		);
+	});
+
+	it('addSpell posts spellId/tierUnlocked/notes', async () => {
+		const fetchMock = captureFetch(204);
+		await addSpell('h1', 's1', 2, null);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/add-spell',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ spellId: 's1', tierUnlocked: 2, notes: null }) })
 		);
 	});
 });

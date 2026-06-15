@@ -44,6 +44,7 @@ export interface ConditionViewModel {
 }
 
 export interface SpellViewModel {
+  spellId: string;
   name: string;
   tier: number;
   school: SpellSchool;
