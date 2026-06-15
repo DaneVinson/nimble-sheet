@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 // `$app/navigation` (goto) resolves to src/test/app-stub.ts via the Vitest alias (Step 0).
-import { ApiError, gainWound, getHeroes, login, spendHitDice, takeDamage } from './client';
+import { ApiError, createHero, gainWound, getHeroes, login, spendHitDice, takeDamage, updateHero } from './client';
 import { clearSession } from '$lib/auth/session';
+import { blankBuildModel } from '$lib/sheet/build/model';
 
 afterEach(() => {
 	vi.restoreAllMocks();
@@ -72,5 +73,30 @@ describe('play-mutation wrappers', () => {
 	it('surfaces an ApiError on a 400', async () => {
 		captureFetch(400);
 		await expect(takeDamage('h1', 5)).rejects.toBeInstanceOf(ApiError);
+	});
+});
+
+describe('hero build wrappers', () => {
+	it('createHero posts the build and returns the new id', async () => {
+		const fetchMock = vi.fn(() =>
+			Promise.resolve(new Response(JSON.stringify({ id: 'h9' }), { status: 201 }))
+		);
+		vi.stubGlobal('fetch', fetchMock);
+		const model = blankBuildModel();
+		await expect(createHero(model)).resolves.toEqual({ id: 'h9' });
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/heroes',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify(model) })
+		);
+	});
+
+	it('updateHero PUTs to the hero route and resolves on 204', async () => {
+		const fetchMock = captureFetch(204);
+		const model = blankBuildModel();
+		await expect(updateHero('h9', model)).resolves.toBeUndefined();
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/heroes/h9',
+			expect.objectContaining({ method: 'PUT', body: JSON.stringify(model) })
+		);
 	});
 });
