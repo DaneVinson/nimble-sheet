@@ -42,6 +42,7 @@
 		if (!actions || selectedId === '') return;
 		await actions.addSpell(selectedId, tier, null);
 		selectedId = '';
+		tier = 1;
 	}
 </script>
 
@@ -55,7 +56,7 @@
 						<li class="flex items-start justify-between gap-2 text-sm text-slate-200">
 							<div>
 								<span class="font-semibold text-white">{s.name}</span>
-								<span class="text-slate-400">{s.manaCost} mana · {s.actionCost} action</span>
+								<span class="text-slate-400">{s.manaCost} mana · {s.actionCost} action{s.actionCost === 1 ? '' : 's'}</span>
 								{#if s.damage}<span class="text-slate-400"> · {s.damage} {s.damageType}</span>{/if}
 							</div>
 							{#if actions}
