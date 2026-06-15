@@ -2,6 +2,7 @@ import { get } from 'svelte/store';
 import { goto } from '$app/navigation';
 import { session, clearSession } from '$lib/auth/session';
 import type { Hero } from './types';
+import type { HeroBuildModel } from '$lib/sheet/build/model';
 
 /** Error thrown for any non-2xx API response. */
 export class ApiError extends Error {
@@ -152,4 +153,20 @@ export function spendMana(heroId: string, amount: number): Promise<void> {
 /** POST /heroes/{id}/recover-all-resources — clear temp HP and restore resources (rest). */
 export function recoverAll(heroId: string): Promise<void> {
 	return apiFetch<void>(`/heroes/${heroId}/recover-all-resources`, { method: 'POST' });
+}
+
+/** POST /heroes — create a hero from build attributes; returns the new id. */
+export function createHero(build: HeroBuildModel): Promise<{ id: string }> {
+	return apiFetch<{ id: string }>('/heroes', {
+		method: 'POST',
+		body: JSON.stringify(build)
+	});
+}
+
+/** PUT /heroes/{id} — update a hero's build attributes. */
+export function updateHero(id: string, build: HeroBuildModel): Promise<void> {
+	return apiFetch<void>(`/heroes/${id}`, {
+		method: 'PUT',
+		body: JSON.stringify(build)
+	});
 }

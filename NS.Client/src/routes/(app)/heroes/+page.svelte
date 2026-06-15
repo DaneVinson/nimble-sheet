@@ -7,7 +7,10 @@
 <svelte:head><title>Heroes — NimbleSheets</title></svelte:head>
 
 <div class="mx-auto max-w-3xl px-4 py-8">
-	<h1 class="mb-6 text-2xl font-bold text-white">Your Heroes</h1>
+	<div class="mb-6 flex items-center justify-between">
+		<h1 class="text-2xl font-bold text-white">Your Heroes</h1>
+		<a href="/heroes/new" class="rounded bg-blue-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600">New hero</a>
+	</div>
 
 	{#if data.heroes.length === 0}
 		<p class="text-slate-400">You don't have any heroes yet.</p>
