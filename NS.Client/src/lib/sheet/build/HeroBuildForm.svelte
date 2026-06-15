@@ -26,7 +26,6 @@
 	} = $props();
 
 	// Deep-copy the initial prop once at mount so edits don't mutate the caller's object.
-	// eslint-disable-next-line svelte/valid-compile
 	// svelte-ignore state_referenced_locally
 	let model = $state<HeroBuildModel>(structuredClone(initial));
 	let errors = $state<BuildErrors>({});
