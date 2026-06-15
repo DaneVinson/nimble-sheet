@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blankBuildModel, heroToBuildModel } from './model';
+import { blankBuildModel, heroToBuildModel, normalizeBuild } from './model';
 import { caldra } from '$lib/fixtures/caldra';
 
 describe('blankBuildModel', () => {
@@ -34,5 +34,35 @@ describe('heroToBuildModel', () => {
 		const m = heroToBuildModel(caldra);
 		m.stats.strength = 99;
 		expect(caldra.stats.strength).not.toBe(99);
+	});
+});
+
+describe('normalizeBuild', () => {
+	it('coerces cleared (null) required numerics to 0', () => {
+		const model = blankBuildModel();
+		// A cleared number input binds to null at runtime despite the number type.
+		(model.stats as { strength: number | null }).strength = null;
+		(model.skills as { arcana: number | null }).arcana = null;
+		(model.combatStats as { speed: number | null }).speed = null;
+
+		const normalized = normalizeBuild(model);
+
+		expect(normalized.stats.strength).toBe(0);
+		expect(normalized.skills.arcana).toBe(0);
+		expect(normalized.combatStats.speed).toBe(0);
+	});
+
+	it('preserves valid numbers and leaves nullable fields untouched', () => {
+		const model = { ...blankBuildModel(), maxMana: null };
+		model.stats.will = 3;
+		model.combatStats.armor = 5;
+		model.resources.layOnHandsPool = null;
+
+		const normalized = normalizeBuild(model);
+
+		expect(normalized.stats.will).toBe(3);
+		expect(normalized.combatStats.armor).toBe(5);
+		expect(normalized.maxMana).toBeNull();
+		expect(normalized.resources.layOnHandsPool).toBeNull();
 	});
 });

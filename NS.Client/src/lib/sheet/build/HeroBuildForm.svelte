@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Ancestry, Background } from '$lib/api/types';
 	import { ApiError } from '$lib/api/client';
-	import type { HeroBuildModel } from './model';
+	import { normalizeBuild, type HeroBuildModel } from './model';
 	import { validateBuild, type BuildErrors } from './validate';
 	import IdentitySection from './IdentitySection.svelte';
 	import VitalsSection from './VitalsSection.svelte';
@@ -41,7 +41,7 @@
 		busy = true;
 		formError = null;
 		try {
-			await onsubmit($state.snapshot(model) as HeroBuildModel);
+			await onsubmit(normalizeBuild($state.snapshot(model) as HeroBuildModel));
 		} catch (e) {
 			formError = e instanceof ApiError ? e.message : 'Save failed.';
 		} finally {

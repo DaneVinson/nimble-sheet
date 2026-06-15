@@ -42,6 +42,47 @@ export function blankBuildModel(): HeroBuildModel {
 	};
 }
 
+// Coerce an empty/NaN numeric input (Svelte binds a cleared number field to null) back to 0.
+function coerceNumber(value: number): number {
+	return Number.isFinite(value) ? value : 0;
+}
+
+/**
+ * Coerce the required (non-nullable) numeric build fields — combat stats, stats, and skills — from
+ * a cleared input's null/NaN back to 0 before submit. The server's int properties reject JSON null,
+ * so this turns a blanked field into its neutral default instead of an opaque 400. Nullable fields
+ * (maxMana, the class-resource pools) are intentionally left as-is.
+ */
+export function normalizeBuild(model: HeroBuildModel): HeroBuildModel {
+	return {
+		...model,
+		combatStats: {
+			...model.combatStats,
+			armor: coerceNumber(model.combatStats.armor),
+			initiativeBonus: coerceNumber(model.combatStats.initiativeBonus),
+			speed: coerceNumber(model.combatStats.speed)
+		},
+		stats: {
+			dexterity: coerceNumber(model.stats.dexterity),
+			intelligence: coerceNumber(model.stats.intelligence),
+			strength: coerceNumber(model.stats.strength),
+			will: coerceNumber(model.stats.will)
+		},
+		skills: {
+			arcana: coerceNumber(model.skills.arcana),
+			examination: coerceNumber(model.skills.examination),
+			finesse: coerceNumber(model.skills.finesse),
+			influence: coerceNumber(model.skills.influence),
+			insight: coerceNumber(model.skills.insight),
+			lore: coerceNumber(model.skills.lore),
+			might: coerceNumber(model.skills.might),
+			naturecraft: coerceNumber(model.skills.naturecraft),
+			perception: coerceNumber(model.skills.perception),
+			stealth: coerceNumber(model.skills.stealth)
+		}
+	};
+}
+
 /** Map a loaded hero's build fields onto an editable model (independent nested copies) for the edit form. */
 export function heroToBuildModel(hero: Hero): HeroBuildModel {
 	return {
