@@ -16,7 +16,7 @@ NS.SoloDB/                     ← SoloDB persistence implementations
 NS.FastEndpoints/              ← All API endpoints (discovered by NS.WebApp at startup)
 NS.WebApp/                     ← Entry point; wires DI and middleware
 NS.Client/                     ← SvelteKit SPA front-end (TypeScript); consumes the API over HTTP
-NS.Tests/                      ← xUnit tests (domain unit tests + SoloDB round-trip tests)
+NS.Tests/                      ← xUnit tests (domain units, SoloDB round-trips, seeding, request validators); references NS.Domain, NS.SoloDB, NS.FastEndpoints
 ```
 
 ---
@@ -85,6 +85,7 @@ HeroWeapon(Guid HeroId, bool IsEquipped, string? Notes, Guid WeaponId)
 
 - `TempHp` absorbs damage before `CurrentHp` (`TakeDamage`), is non-stacking (`GrantTempHp` keeps the higher value), and is cleared by `RecoverAllResources`.
 - `UpdateBuild(...)` overwrites the character-build fields (the `HeroBuildRequest` set) while preserving level, subclass, play state, and collections; `CurrentHp`/`CurrentMana` clamp to lowered maximums.
+- The numeric play-mutation methods (`TakeDamage`, `Heal`, `GrantTempHp`, `SpendMana`, `SpendHitDice`) guard their amount arguments with `ArgumentOutOfRangeException.ThrowIfNegative(...)` as the first statement (uniformly reject negatives; existing `Math.Max/Min` clamping follows). The API validators (NS.FastEndpoints) are the friendlier first line; these guards make the domain authoritative for any caller.
 
 ### Reference Entities (positional records)
 
@@ -148,7 +149,8 @@ All new GUIDs are created with `Guid.CreateVersion7()` (time-ordered, .NET 9+). 
 - `SoloReferenceDataService<T>` — uses a cached reflection delegate `Func<T, Guid> _getId` to read `Id` without a domain interface
 - `SoloUserDataService` — same in-memory pattern as `SoloHeroDataService`; implements `IUserDataService`
 - All services are registered as **Singletons** because SoloDB is thread-safe via its internal connection pool
-- `ServiceCollectionExtensions.AddSoloDBDataServices(services, databasePath)` registers everything
+- `ServiceCollectionExtensions.AddSoloDBDataServices(services, databasePath)` registers everything (including the seeder)
+- **Reference-data seeding**: `IReferenceDataSeeder` (public) / `SoloReferenceDataSeeder` (public sealed) — `SeedAsync` inserts a curated starter set **only into collections that are currently empty** (idempotent; editing seed data later needs a fresh DB). The rows live in `SeedData` (internal static) as positional-record literals with **fixed hand-written GUIDs** (never `CreateVersion7()`) so heroes can reference them; the Caldra-overlapping rows reuse the client `fixtures/caldra.ts` GUIDs. NS.WebApp invokes `SeedAsync()` at startup after `app.Build()`.
 
 **`_GlobalUsings.cs`**:
 ```csharp
@@ -207,6 +209,7 @@ await SendAsync(response, cancellation: ct);
 - JSON body and route params are merged automatically
 - All endpoints require an authenticated user by default (via the global fallback policy). Only `CreateUserEndpoint` and `LoginEndpoint` call `AllowAnonymous()` in `Configure()`.
 - Validators use FluentValidation via `Validator<TRequest>` and are auto-discovered; format rules go in the validator class, business-rule checks (e.g. uniqueness) go in `HandleAsync` via `AddError` + `ThrowIfAnyErrors()`
+- The amount-bearing play-mutation endpoints have validators (co-located in their endpoint file) rejecting invalid amounts → **400**: `TakeDamageValidator`/`HealValidator`/`SpendManaValidator` use `GreaterThan(0)`; `GrantTempHpValidator` and `SpendHitDiceValidator.HealingAmount` use `GreaterThanOrEqualTo(0)` (0 allowed); `SpendHitDiceValidator.Count` uses `GreaterThan(0)`. The no-body mutation endpoints take no numeric input. Domain guards back these up (see NS.Domain).
 
 ### Assembly discovery
 
@@ -347,6 +350,7 @@ builder.Services.AddAuthorization(options =>
         .Build());
 
 var app = builder.Build();
+await app.Services.GetRequiredService<IReferenceDataSeeder>().SeedAsync();  // seed reference data (idempotent)
 app.UseHttpsRedirection();
 app.UseDefaultFiles();      // serve the SPA from wwwroot (same-origin)
 app.UseStaticFiles();
@@ -376,13 +380,16 @@ The front-end SPA.
 A dark-mode character sheet backed by **live API data**, behind a login flow.
 
 - **Auth/session** (`src/lib/auth/session.ts`): a localStorage-backed JWT session store (`Session = { name, token, userId }`) hydrated on load; `setSession` / `clearSession`. Guarded for non-browser (test) environments.
-- **API client** (`src/lib/api/client.ts`): `apiFetch` attaches the bearer token, throws `ApiError` on non-2xx, and on **401 clears the session + redirects to `/login`** (centrally). 204 → `void`. Typed wrappers: `login`, `createUser`, `getHeroes`, `getHero`, `getReferenceCollection`, plus the hero play-mutation wrappers (`takeDamage`, `heal`, `grantTempHp`, `gainWound`, `healWound`, `spendHitDice`, `spendMana`, `recoverAll`) once that slice lands.
+- **API client** (`src/lib/api/client.ts`): `apiFetch` attaches the bearer token, throws `ApiError` on non-2xx, and on **401 clears the session + redirects to `/login`** (centrally). 204 → `void`. `readErrorMessage` extracts FastEndpoints validation messages (`{errors:{field:[msg]}}`) so 400s surface a real message. Typed wrappers: `login`, `createUser`, `getHeroes`, `getHero`, `getReferenceCollection`, `createHero`, `updateHero`, and the hero play-mutation wrappers (`takeDamage`, `heal`, `grantTempHp`, `gainWound`, `healWound`, `spendHitDice`, `spendMana`, `recoverAll`).
 - **Reference cache** (`src/lib/reference/cache.ts`): lazily fetches only the reference collections a hero actually references (`neededResources` → `assembleReferenceData`), caches each full collection for the session, and **evicts a rejected fetch** so it retries rather than poisoning the cache.
 - **Data layer** (`src/lib/`): `api/types.ts` mirrors the API DTOs (camelCase; enums as string-union types matching the `JsonStringEnumConverter` names). `sheet/resolve.ts` is a pure resolver joining the hero's ID-referenced collections to reference data into a `SheetViewModel` (`sheet/viewmodel.ts`); `sheet/format.ts` holds display helpers. `fixtures/caldra.ts` remains as the resolver test fixture.
 - **Components** (`src/lib/sheet/components/`): `HeroSheet` composes a pinned region (banner, vitals, stats with `SAVE▲/▼` save markers, skills) and a tab switcher (`SheetTabs`) over Combat / Magic / Class Resources / Inventory / Features panels. Always dark — dark-tone Tailwind utilities directly, no `dark:` variants.
-- **Routes**: `/login` (login + create-user, anonymous); a guarded **`(app)` route group** (`(app)/+layout.ts` redirects to `/login` when there's no session; `(app)/+layout.svelte` is the dark app chrome — app name, user name, logout, `$navigating` loading bar) holding `/heroes` (list) and `/heroes/[id]` (the live sheet: load → `getHero` → `assembleReferenceData` → `resolveSheet` → `HeroSheet`, with a `+error.svelte` 404 boundary). Root `/` redirects to `/heroes`. (SvelteKit route groups don't appear in the URL.)
-- **Tests**: Vitest covers the resolver, reference cache, API client, and session store; run with `npm test`. `vitest.config.ts` adds `$lib` and `$app/*` aliases (the latter pointing at `src/test/app-stub.ts`) so these modules import under the Node test env.
-- **Not yet built**: the **live-play mutations** (HP damage/heal popover, wounds, hit dice, mana, recover-all) are designed and planned (`docs/superpowers/specs/2026-06-13-hp-popover-play-mutations-design.md` + `.../plans/2026-06-13-hp-popover-play-mutations.md`) but **shelved/unimplemented**. Also deferred: a **reference-data seeding mechanism** (reference endpoints are GET-only, so the live sheet cannot yet resolve real reference names end-to-end) and the create/edit-hero (build) form.
+- **Live-play mutations** (`src/lib/sheet/`): interactive tiles wire the eight play-mutation endpoints. A `heroActions.svelte.ts` runes context (`createHeroActions(getHeroId)` + `HERO_ACTIONS` key, reactive `busy`/`error`, each method POSTs then `invalidateAll()`) is provided by `HeroActionsScope.svelte` (keyed by `heroId` on the `[id]` page so a fresh actions object resets stale error/inputs on navigation). `runAction.ts` is the pure (rune-free, testable) busy/error/refresh orchestrator. Tiles (`HpTile`, `WoundTrack`, `HitDiceTile`, `ManaTile`, `RestButton`) consume the context **optionally** via a reusable `TilePopover` — read-only when no provider is present. Server owns all rules; the client sends amounts and re-fetches (no optimistic updates).
+- **Hero build form** (`src/lib/sheet/build/`): a shared `HeroBuildForm.svelte` + seven `*Section.svelte` (Identity/Vitals/Combat/Stats/Saves/Skills/ClassResources), each a `$bindable()` slice of a `HeroBuildModel` (`model.ts`: `blankBuildModel`, `heroToBuildModel`, `normalizeBuild` — coerces cleared required numerics to 0 before submit). `validate.ts` does required-fields-only client validation; the server is authoritative. Build fields only — equipment/spell collections are not in the form (the server's `UpdateBuild` preserves them).
+- **Routes**: `/login` (login + create-user, anonymous); a guarded **`(app)` route group** (`(app)/+layout.ts` redirects to `/login` when there's no session; `(app)/+layout.svelte` is the dark app chrome — app name, user name, logout, `$navigating` loading bar) holding `/heroes` (list, with a "New hero" link), `/heroes/new` (create form → `createHero` → navigate to the new sheet), `/heroes/[id]` (the live sheet: load → `getHero` → `assembleReferenceData` → `resolveSheet` → `HeroSheet`, with an "Edit" link and a `+error.svelte` 404 boundary), and `/heroes/[id]/edit` (edit form pre-filled via `heroToBuildModel` → `updateHero` → back to the sheet; own `+error.svelte`). Root `/` redirects to `/heroes`. (SvelteKit route groups don't appear in the URL.)
+- **Tests**: Vitest covers the resolver, reference cache, API client (incl. mutation + build wrappers), session store, `runAction`, and the build `model`/`validate`/`normalizeBuild` logic; run with `npm test`. `vitest.config.ts` adds `$lib` and `$app/*` aliases (the latter pointing at `src/test/app-stub.ts`) so these modules import under the Node test env.
+- **Shipped (2026-06-14)**: live-play mutations (HP/wounds/hit-dice/mana/rest popovers), reference-data seeding (real names resolve end-to-end), the create/edit-hero build form, and server-side mutation validation. Specs/plans for each are under `docs/superpowers/`.
+- **Still open**: **browser-level visual verification** — every slice has been verified via `npm run check`/`build`/Vitest + HTTP smokes, but the live pages have never been confirmed in an actual browser (there's now a full clickable flow: login → create hero → sheet → edit → play mutations).
 
 **Stack**:
 - **SvelteKit 2.x** on **Svelte 5** (runes mode forced for project code), **Vite 8**, **TypeScript**
