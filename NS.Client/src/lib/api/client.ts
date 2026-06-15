@@ -250,6 +250,22 @@ export function removeSpell(heroId: string, spellId: string): Promise<void> {
 	});
 }
 
+/** POST /heroes/{id}/add-gear-item — add a free-text gear item. */
+export function addGearItem(heroId: string, name: string, quantity: number): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/add-gear-item`, {
+		method: 'POST',
+		body: JSON.stringify({ name, quantity })
+	});
+}
+
+/** POST /heroes/{id}/remove-gear-item — remove a gear item by name. */
+export function removeGearItem(heroId: string, name: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/remove-gear-item`, {
+		method: 'POST',
+		body: JSON.stringify({ name })
+	});
+}
+
 /** POST /heroes — create a hero from build attributes; returns the new id. */
 export function createHero(build: HeroBuildModel): Promise<{ id: string }> {
 	return apiFetch<{ id: string }>('/heroes', {
