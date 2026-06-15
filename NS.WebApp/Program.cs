@@ -45,12 +45,19 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// All API endpoints are served under the "/api" prefix so they never collide with
+// SPA client routes (e.g. /heroes, /heroes/{id}). This lets the fallback below return
+// the app shell for those deep links instead of the API answering them.
 // Serialize enums by name (e.g. "Oathsworn", "D10") and accept names or integers on input.
-app.UseFastEndpoints(c => c.Serializer.Options.Converters.Add(new JsonStringEnumConverter()));
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.RoutePrefix = "api";
+    c.Serializer.Options.Converters.Add(new JsonStringEnumConverter());
+});
 
 // SPA fallback: any non-API, non-file request returns the app shell so client-side
-// routing (deep links such as the login page) works. AllowAnonymous so the shell
-// loads without a token; the API endpoints keep their own auth requirements.
+// routing and deep links (e.g. refreshing on /heroes/{id}) work. AllowAnonymous so the
+// shell loads without a token; the /api endpoints keep their own auth requirements.
 app.MapFallbackToFile("index.html").AllowAnonymous();
 
 app.Run();

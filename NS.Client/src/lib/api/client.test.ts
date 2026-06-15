@@ -47,7 +47,7 @@ describe('play-mutation wrappers', () => {
 		const fetchMock = captureFetch(204);
 		await takeDamage('h1', 5);
 		expect(fetchMock).toHaveBeenCalledWith(
-			'/heroes/h1/take-damage',
+			'/api/heroes/h1/take-damage',
 			expect.objectContaining({ method: 'POST', body: JSON.stringify({ amount: 5 }) })
 		);
 	});
@@ -56,7 +56,7 @@ describe('play-mutation wrappers', () => {
 		const fetchMock = captureFetch(204);
 		await spendHitDice('h1', 2, 7);
 		expect(fetchMock).toHaveBeenCalledWith(
-			'/heroes/h1/spend-hit-dice',
+			'/api/heroes/h1/spend-hit-dice',
 			expect.objectContaining({ method: 'POST', body: JSON.stringify({ count: 2, healingAmount: 7 }) })
 		);
 	});
@@ -65,7 +65,7 @@ describe('play-mutation wrappers', () => {
 		const fetchMock = captureFetch(204);
 		await expect(gainWound('h1')).resolves.toBeUndefined();
 		const [path, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-		expect(path).toBe('/heroes/h1/gain-wound');
+		expect(path).toBe('/api/heroes/h1/gain-wound');
 		expect(init.method).toBe('POST');
 		expect(init.body).toBeUndefined();
 	});
@@ -85,7 +85,7 @@ describe('hero build wrappers', () => {
 		const model = blankBuildModel();
 		await expect(createHero(model)).resolves.toEqual({ id: 'h9' });
 		expect(fetchMock).toHaveBeenCalledWith(
-			'/heroes',
+			'/api/heroes',
 			expect.objectContaining({ method: 'POST', body: JSON.stringify(model) })
 		);
 	});
@@ -95,7 +95,7 @@ describe('hero build wrappers', () => {
 		const model = blankBuildModel();
 		await expect(updateHero('h9', model)).resolves.toBeUndefined();
 		expect(fetchMock).toHaveBeenCalledWith(
-			'/heroes/h9',
+			'/api/heroes/h9',
 			expect.objectContaining({ method: 'PUT', body: JSON.stringify(model) })
 		);
 	});

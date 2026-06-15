@@ -237,6 +237,8 @@ NS.WebApp must reference the `FastEndpoints` package **directly** and add `globa
 
 ### Hero endpoint routes
 
+> All API routes below are served under the **`/api`** prefix (e.g. `/api/heroes`, `/api/reference/spells`, `/api/users/login`) — see the global `RoutePrefix = "api"` in NS.WebApp. The tables list routes relative to that prefix. The client's `apiFetch` prepends `/api`; the SPA's own client-side routes (`/heroes`, `/login`, …) are unprefixed and resolve to the app shell.
+
 | Method | Route | Endpoint |
 |---|---|---|
 | GET | `/heroes` | `GetAllHeroesEndpoint` |
@@ -356,7 +358,11 @@ app.UseDefaultFiles();      // serve the SPA from wwwroot (same-origin)
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseFastEndpoints(c => c.Serializer.Options.Converters.Add(new JsonStringEnumConverter()));
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.RoutePrefix = "api";   // all API endpoints served under /api (avoids SPA route collisions)
+    c.Serializer.Options.Converters.Add(new JsonStringEnumConverter());
+});
 app.MapFallbackToFile("index.html").AllowAnonymous();   // SPA deep-link fallback
 app.Run();
 ```
@@ -401,7 +407,7 @@ A dark-mode character sheet backed by **live API data**, behind a login flow.
 **Key files**:
 - `src/app.css` — Tailwind entry: `@import 'tailwindcss'`, `@plugin 'flowbite/plugin'`, the `dark` custom variant, and `@source` directives pointing at the Flowbite Svelte `dist` folders so their classes are scanned. Imported once in `src/routes/+layout.svelte`
 - `svelte.config.js` — static adapter + SPA fallback
-- `vite.config.ts` — registers `tailwindcss()` before `sveltekit()`; dev `server.proxy` forwards `/heroes`, `/users`, `/reference` to the API (`http://localhost:5197`) so `npm run dev` runs against the live backend (production is same-origin and never hits the proxy)
+- `vite.config.ts` — registers `tailwindcss()` before `sveltekit()`; dev `server.proxy` forwards `/api` to the API (`http://localhost:5197`) so `npm run dev` runs against the live backend (production is same-origin and never hits the proxy). All API calls go through `/api` (the client's `apiFetch` prepends the prefix), so client routes like `/heroes` never collide with the API
 
 **Commands** (run from `NS.Client/`):
 - `npm run dev` — dev server
@@ -420,7 +426,7 @@ NS.WebApp hosts the SPA as **same-origin static content**, so the browser never 
 - **Refreshing the SPA in dev**: because `BuildSpaIfMissing` is skipped when output exists, a plain `dotnet build` does **not** pick up SPA source changes. To refresh, delete `NS.WebApp/wwwroot` (next build rebuilds) or run `npm run build` in `NS.Client`. For active front-end iteration you *can* still run `npm run dev` (Vite HMR), but it is optional — the app fully works from the single .NET server.
 - **`wwwroot` is generated**: `NS.WebApp/wwwroot/` is git-ignored (see root `.gitignore`); it is never committed.
 - **Serving** (`Program.cs`): `UseDefaultFiles()` + `UseStaticFiles()` (assets served before auth, no token needed) and `MapFallbackToFile("index.html").AllowAnonymous()` so client-side deep links return the app shell. API endpoints keep their own auth requirements; the fallback must stay anonymous or the global `RequireAuthenticatedUser` fallback policy would 401 the shell.
-- **API/SPA route collisions**: API routes are unprefixed (`/heroes`, `/users`, `/reference/...`). A client-side route that exactly matches a real API route (e.g. `/heroes` or `/heroes/{id}`) resolves to the API, not the SPA shell. If/when the SPA needs overlapping paths, prefix the API (e.g. `/api`) or use distinct client routes.
+- **API/SPA route collisions (resolved)**: All API endpoints are served under the **`/api`** prefix (`UseFastEndpoints(c => c.Endpoints.RoutePrefix = "api")`), so they never collide with SPA client routes. The client routes (`/heroes`, `/heroes/{id}`, `/login`, …) fall through to `MapFallbackToFile("index.html")`, so **refresh/deep-link/bookmark on any client route returns the app shell** rather than a raw API response. Previously the API was unprefixed and answered `/heroes` and `/heroes/{id}` directly (a hard navigation/refresh returned a 401 instead of the SPA). Confirmed via browser verification. The dev Vite proxy now forwards only `/api`.
 
 ---
 

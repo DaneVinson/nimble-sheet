@@ -23,6 +23,11 @@ export interface CreateUserResult {
 	id: string;
 }
 
+// All API endpoints are served under "/api" so they never collide with SPA client
+// routes (e.g. /heroes, /heroes/{id}). Wrappers below pass logical paths ("/heroes");
+// apiFetch prepends the prefix.
+const API_BASE = '/api';
+
 async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
 	const current = get(session);
 	const headers = new Headers(init.headers);
@@ -33,7 +38,7 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
 		headers.set('Content-Type', 'application/json');
 	}
 
-	const response = await fetch(path, { ...init, headers });
+	const response = await fetch(`${API_BASE}${path}`, { ...init, headers });
 
 	if (response.status === 401) {
 		clearSession();
