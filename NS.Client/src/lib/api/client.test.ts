@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 // `$app/navigation` (goto) resolves to src/test/app-stub.ts via the Vitest alias (Step 0).
-import { addArmor, addCondition, addFeature, addGearItem, addMagicItem, addSpell, addWeapon, ApiError, createHero, gainWound, getHeroes, login, removeWeapon, setWeaponEquipped, spendHitDice, takeDamage, updateHero } from './client';
+import { addArmor, addCondition, addFeature, addGearItem, addMagicItem, addSpell, addWeapon, ApiError, applyStatIncrease, createHero, finalizeSkillAllocation, gainWound, getHeroes, levelUp, login, removeWeapon, setSubclass, setWeaponEquipped, spendHitDice, takeDamage, updateHero } from './client';
 import { clearSession } from '$lib/auth/session';
 import { blankBuildModel } from '$lib/sheet/build/model';
 
@@ -155,6 +155,43 @@ describe('collection wrappers', () => {
 		expect(fetchMock).toHaveBeenCalledWith(
 			'/api/heroes/h1/add-feature',
 			expect.objectContaining({ method: 'POST', body: JSON.stringify({ featureId: 'f1', choices: ['Option A'], levelGained: 3 }) })
+		);
+	});
+
+	it('levelUp posts an empty pendingChoices list', async () => {
+		const fetchMock = captureFetch(204);
+		await levelUp('h1');
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/level-up',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ pendingChoices: [] }) })
+		);
+	});
+
+	it('applyStatIncrease posts the stat name', async () => {
+		const fetchMock = captureFetch(204);
+		await applyStatIncrease('h1', 'Strength');
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/apply-stat-increase',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ stat: 'Strength' }) })
+		);
+	});
+
+	it('finalizeSkillAllocation posts updatedSkills', async () => {
+		const fetchMock = captureFetch(204);
+		const skills = { arcana: 1, examination: 0, finesse: 0, influence: 0, insight: 0, lore: 0, might: 2, naturecraft: 0, perception: 0, stealth: 0 };
+		await finalizeSkillAllocation('h1', skills);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/finalize-skill-allocation',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ updatedSkills: skills }) })
+		);
+	});
+
+	it('setSubclass posts the subclass name', async () => {
+		const fetchMock = captureFetch(204);
+		await setSubclass('h1', 'Ravager');
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/set-subclass',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ subclass: 'Ravager' }) })
 		);
 	});
 });

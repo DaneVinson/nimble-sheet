@@ -1,9 +1,11 @@
 import { invalidateAll } from '$app/navigation';
 import {
-	addArmor, addCondition, addFeature, addGearItem, addMagicItem, addSpell, addWeapon, gainWound, grantTempHp, heal, healWound,
+	addArmor, addCondition, addFeature, addGearItem, addMagicItem, addSpell, addWeapon, applyHpIncrease, applyStatIncrease,
+	finalizeSkillAllocation, gainWound, grantTempHp, heal, healWound, levelUp as levelUpRequest,
 	recoverAll, removeArmor, removeCondition, removeFeature, removeGearItem, removeMagicItem, removeSpell, removeWeapon,
-	setArmorEquipped, setMagicItemEquipped, setWeaponEquipped, spendHitDice, spendMana, takeDamage
+	setArmorEquipped, setMagicItemEquipped, setSubclass, setWeaponEquipped, spendHitDice, spendMana, takeDamage
 } from '$lib/api/client';
+import type { HeroSkills } from '$lib/api/types';
 import { runAction } from './runAction';
 
 /** Context key for the per-hero mutation actions. */
@@ -38,6 +40,10 @@ export interface HeroActions {
 	removeCondition(conditionId: string): Promise<void>;
 	addFeature(featureId: string, choices: string[], levelGained: number): Promise<void>;
 	removeFeature(featureId: string): Promise<void>;
+	levelUp(hpIncrease: number): Promise<void>;
+	applyStatIncrease(stat: string): Promise<void>;
+	finalizeSkillAllocation(skills: HeroSkills): Promise<void>;
+	setSubclass(subclass: string): Promise<void>;
 }
 
 /** Create the actions bound to a (lazily-read) hero id. Each action POSTs then re-fetches. */
@@ -79,6 +85,16 @@ export function createHeroActions(getHeroId: () => string): HeroActions {
 		addCondition: (conditionId, expiresAtEndOf) => run(() => addCondition(getHeroId(), conditionId, expiresAtEndOf)),
 		removeCondition: (conditionId) => run(() => removeCondition(getHeroId(), conditionId)),
 		addFeature: (featureId, choices, levelGained) => run(() => addFeature(getHeroId(), featureId, choices, levelGained)),
-		removeFeature: (featureId) => run(() => removeFeature(getHeroId(), featureId))
+		removeFeature: (featureId) => run(() => removeFeature(getHeroId(), featureId)),
+		levelUp: (hpIncrease) =>
+			run(async () => {
+				if (hpIncrease > 0) {
+					await applyHpIncrease(getHeroId(), hpIncrease);
+				}
+				await levelUpRequest(getHeroId());
+			}),
+		applyStatIncrease: (stat) => run(() => applyStatIncrease(getHeroId(), stat)),
+		finalizeSkillAllocation: (skills) => run(() => finalizeSkillAllocation(getHeroId(), skills)),
+		setSubclass: (subclass) => run(() => setSubclass(getHeroId(), subclass))
 	};
 }
