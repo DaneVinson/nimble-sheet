@@ -1,4 +1,4 @@
-import type { ArmorType, DamageType, HeroClass, SpellSchool, StatType } from '../api/types';
+import type { ArmorType, DamageType, HeroClass, HeroSkills, SpellSchool, StatType } from '../api/types';
 
 export type SaveMarker = 'advantage' | 'disadvantage' | null;
 
@@ -104,6 +104,10 @@ export interface SheetViewModel {
   ancestryName: string;
   backgroundName: string | null;
   subclass: string | null;
+  pendingStatIncrease: boolean;
+  unspentSkillPoints: number;
+  needsSubclass: boolean;
+  skillValues: HeroSkills;
 
   hp: { current: number; max: number; temp: number };
   wounds: { current: number; max: number; isDead: boolean; isDying: boolean };
