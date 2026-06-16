@@ -105,6 +105,7 @@ function buildFeatures(hero: Hero, features: Map<string, Feature>): FeatureLevel
   for (const owned of hero.features) {
     const ref = features.get(owned.featureId);
     const vm = {
+      featureId: owned.featureId,
       name: ref?.name ?? 'Unknown feature',
       description: ref?.description ?? '',
       level: owned.levelGained,

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 // `$app/navigation` (goto) resolves to src/test/app-stub.ts via the Vitest alias (Step 0).
-import { addArmor, addCondition, addGearItem, addMagicItem, addSpell, addWeapon, ApiError, createHero, gainWound, getHeroes, login, removeWeapon, setWeaponEquipped, spendHitDice, takeDamage, updateHero } from './client';
+import { addArmor, addCondition, addFeature, addGearItem, addMagicItem, addSpell, addWeapon, ApiError, createHero, gainWound, getHeroes, login, removeWeapon, setWeaponEquipped, spendHitDice, takeDamage, updateHero } from './client';
 import { clearSession } from '$lib/auth/session';
 import { blankBuildModel } from '$lib/sheet/build/model';
 
@@ -146,6 +146,15 @@ describe('collection wrappers', () => {
 		expect(fetchMock).toHaveBeenCalledWith(
 			'/api/heroes/h1/add-condition',
 			expect.objectContaining({ method: 'POST', body: JSON.stringify({ conditionId: 'c1', expiresAtEndOf: null }) })
+		);
+	});
+
+	it('addFeature posts featureId/choices/levelGained', async () => {
+		const fetchMock = captureFetch(204);
+		await addFeature('h1', 'f1', ['Option A'], 3);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/add-feature',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ featureId: 'f1', choices: ['Option A'], levelGained: 3 }) })
 		);
 	});
 });

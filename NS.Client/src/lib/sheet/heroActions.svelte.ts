@@ -1,7 +1,7 @@
 import { invalidateAll } from '$app/navigation';
 import {
-	addArmor, addCondition, addGearItem, addMagicItem, addSpell, addWeapon, gainWound, grantTempHp, heal, healWound,
-	recoverAll, removeArmor, removeCondition, removeGearItem, removeMagicItem, removeSpell, removeWeapon,
+	addArmor, addCondition, addFeature, addGearItem, addMagicItem, addSpell, addWeapon, gainWound, grantTempHp, heal, healWound,
+	recoverAll, removeArmor, removeCondition, removeFeature, removeGearItem, removeMagicItem, removeSpell, removeWeapon,
 	setArmorEquipped, setMagicItemEquipped, setWeaponEquipped, spendHitDice, spendMana, takeDamage
 } from '$lib/api/client';
 import { runAction } from './runAction';
@@ -36,6 +36,8 @@ export interface HeroActions {
 	removeGearItem(name: string): Promise<void>;
 	addCondition(conditionId: string, expiresAtEndOf: string | null): Promise<void>;
 	removeCondition(conditionId: string): Promise<void>;
+	addFeature(featureId: string, choices: string[], levelGained: number): Promise<void>;
+	removeFeature(featureId: string): Promise<void>;
 }
 
 /** Create the actions bound to a (lazily-read) hero id. Each action POSTs then re-fetches. */
@@ -75,6 +77,8 @@ export function createHeroActions(getHeroId: () => string): HeroActions {
 		addGearItem: (name, quantity) => run(() => addGearItem(getHeroId(), name, quantity)),
 		removeGearItem: (name) => run(() => removeGearItem(getHeroId(), name)),
 		addCondition: (conditionId, expiresAtEndOf) => run(() => addCondition(getHeroId(), conditionId, expiresAtEndOf)),
-		removeCondition: (conditionId) => run(() => removeCondition(getHeroId(), conditionId))
+		removeCondition: (conditionId) => run(() => removeCondition(getHeroId(), conditionId)),
+		addFeature: (featureId, choices, levelGained) => run(() => addFeature(getHeroId(), featureId, choices, levelGained)),
+		removeFeature: (featureId) => run(() => removeFeature(getHeroId(), featureId))
 	};
 }

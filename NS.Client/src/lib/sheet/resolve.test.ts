@@ -65,6 +65,11 @@ describe('resolveSheet', () => {
     expect(vm.weapons[0].weaponId).toBe(caldra.weapons[0].weaponId);
   });
 
+  it('carries the feature reference id for editing', () => {
+    const ids = vm.features.flatMap((g) => g.features.map((f) => f.featureId)).sort();
+    expect(ids).toEqual(caldra.features.map((f) => f.featureId).sort());
+  });
+
   it('falls back gracefully when a referenced entity is missing', () => {
     const heroWithBadWeapon: Hero = {
       ...caldra,

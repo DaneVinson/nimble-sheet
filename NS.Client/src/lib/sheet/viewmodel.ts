@@ -83,6 +83,7 @@ export interface GearViewModel {
 }
 
 export interface FeatureViewModel {
+  featureId: string;
   name: string;
   description: string;
   level: number;
