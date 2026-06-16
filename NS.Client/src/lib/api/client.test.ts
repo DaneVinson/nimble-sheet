@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 // `$app/navigation` (goto) resolves to src/test/app-stub.ts via the Vitest alias (Step 0).
-import { addArmor, addCondition, addFeature, addGearItem, addMagicItem, addSpell, addWeapon, ApiError, applyStatIncrease, createHero, finalizeSkillAllocation, gainWound, getHeroes, levelUp, login, removeWeapon, setSubclass, setWeaponEquipped, spendHitDice, takeDamage, updateHero } from './client';
+import { addArmor, addCondition, addFeature, addGearItem, addMagicItem, addSpell, addWeapon, ApiError, applyHpIncrease, applyStatIncrease, createHero, finalizeSkillAllocation, gainWound, getHeroes, levelUp, login, removeWeapon, setSubclass, setWeaponEquipped, spendHitDice, takeDamage, updateHero } from './client';
 import { clearSession } from '$lib/auth/session';
 import { blankBuildModel } from '$lib/sheet/build/model';
 
@@ -155,6 +155,15 @@ describe('collection wrappers', () => {
 		expect(fetchMock).toHaveBeenCalledWith(
 			'/api/heroes/h1/add-feature',
 			expect.objectContaining({ method: 'POST', body: JSON.stringify({ featureId: 'f1', choices: ['Option A'], levelGained: 3 }) })
+		);
+	});
+
+	it('applyHpIncrease posts the amount', async () => {
+		const fetchMock = captureFetch(204);
+		await applyHpIncrease('h1', 5);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/apply-hp-increase',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ amount: 5 }) })
 		);
 	});
 
