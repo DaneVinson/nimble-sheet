@@ -1,7 +1,7 @@
 import { get } from 'svelte/store';
 import { goto } from '$app/navigation';
 import { session, clearSession } from '$lib/auth/session';
-import type { Hero } from './types';
+import type { Hero, HeroSkills } from './types';
 import type { HeroBuildModel } from '$lib/sheet/build/model';
 
 /** Error thrown for any non-2xx API response. */
@@ -311,5 +311,45 @@ export function removeFeature(heroId: string, featureId: string): Promise<void> 
 	return apiFetch<void>(`/heroes/${heroId}/remove-feature`, {
 		method: 'POST',
 		body: JSON.stringify({ featureId })
+	});
+}
+
+/** POST /heroes/{id}/level-up — advance one level (feature choices handled separately). */
+export function levelUp(heroId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/level-up`, {
+		method: 'POST',
+		body: JSON.stringify({ pendingChoices: [] })
+	});
+}
+
+/** POST /heroes/{id}/apply-hp-increase — raise max + current HP by the rolled amount. */
+export function applyHpIncrease(heroId: string, amount: number): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/apply-hp-increase`, {
+		method: 'POST',
+		body: JSON.stringify({ amount })
+	});
+}
+
+/** POST /heroes/{id}/apply-stat-increase — apply the pending +1 stat increase. */
+export function applyStatIncrease(heroId: string, stat: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/apply-stat-increase`, {
+		method: 'POST',
+		body: JSON.stringify({ stat })
+	});
+}
+
+/** POST /heroes/{id}/finalize-skill-allocation — replace skills and clear unspent points. */
+export function finalizeSkillAllocation(heroId: string, updatedSkills: HeroSkills): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/finalize-skill-allocation`, {
+		method: 'POST',
+		body: JSON.stringify({ updatedSkills })
+	});
+}
+
+/** POST /heroes/{id}/set-subclass — set the hero's subclass. */
+export function setSubclass(heroId: string, subclass: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/set-subclass`, {
+		method: 'POST',
+		body: JSON.stringify({ subclass })
 	});
 }

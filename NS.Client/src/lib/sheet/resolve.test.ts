@@ -70,6 +70,20 @@ describe('resolveSheet', () => {
     expect(ids).toEqual(caldra.features.map((f) => f.featureId).sort());
   });
 
+  it('carries level-up pending state and editable skill values', () => {
+    const vm = resolveSheet(caldra, referenceData);
+    expect(vm.pendingStatIncrease).toBe(caldra.pendingStatIncrease);
+    expect(vm.unspentSkillPoints).toBe(caldra.unspentSkillPoints);
+    expect(vm.needsSubclass).toBe(caldra.level >= 3 && caldra.subclass === null);
+    expect(vm.skillValues).toEqual(caldra.skills);
+  });
+
+  it('skillValues is an independent copy of the hero skills', () => {
+    const vm = resolveSheet(caldra, referenceData);
+    vm.skillValues.might = 99;
+    expect(caldra.skills.might).not.toBe(99);
+  });
+
   it('falls back gracefully when a referenced entity is missing', () => {
     const heroWithBadWeapon: Hero = {
       ...caldra,

@@ -140,6 +140,10 @@ export function resolveSheet(hero: Hero, reference: ReferenceData): SheetViewMod
     ancestryName: ancestries.get(hero.ancestryId)?.name ?? 'Unknown ancestry',
     backgroundName: hero.backgroundId ? backgrounds.get(hero.backgroundId)?.name ?? 'Unknown background' : null,
     subclass: hero.subclass,
+    pendingStatIncrease: hero.pendingStatIncrease,
+    unspentSkillPoints: hero.unspentSkillPoints,
+    needsSubclass: hero.level >= 3 && hero.subclass === null,
+    skillValues: { ...hero.skills },
 
     hp: { current: hero.currentHp, max: hero.maxHp, temp: hero.tempHp },
     wounds: { current: hero.currentWounds, max: 6, isDead: hero.isDead, isDying: hero.isDying },

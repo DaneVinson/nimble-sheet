@@ -6,6 +6,7 @@
   import SkillsRow from './SkillsRow.svelte';
   import SheetTabs from './SheetTabs.svelte';
   import RestButton from './RestButton.svelte';
+  import LevelUpControls from './LevelUpControls.svelte';
 
   let { vm }: { vm: SheetViewModel } = $props();
 </script>
@@ -20,7 +21,8 @@
   />
 
   <div class="space-y-4 bg-slate-900 px-5 py-4">
-    <div class="flex justify-end">
+    <div class="flex flex-wrap items-center justify-end gap-2">
+      <LevelUpControls {vm} />
       <RestButton />
     </div>
     <VitalsRow {vm} />
