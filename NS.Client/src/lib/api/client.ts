@@ -297,3 +297,19 @@ export function updateHero(id: string, build: HeroBuildModel): Promise<void> {
 		body: JSON.stringify(build)
 	});
 }
+
+/** POST /heroes/{id}/add-feature — grant a class feature with any selectable-option choices. */
+export function addFeature(heroId: string, featureId: string, choices: string[], levelGained: number): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/add-feature`, {
+		method: 'POST',
+		body: JSON.stringify({ featureId, choices, levelGained })
+	});
+}
+
+/** POST /heroes/{id}/remove-feature — remove a feature by its reference id. */
+export function removeFeature(heroId: string, featureId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/remove-feature`, {
+		method: 'POST',
+		body: JSON.stringify({ featureId })
+	});
+}
