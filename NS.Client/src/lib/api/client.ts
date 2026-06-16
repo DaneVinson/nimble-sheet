@@ -250,6 +250,22 @@ export function removeSpell(heroId: string, spellId: string): Promise<void> {
 	});
 }
 
+/** POST /heroes/{id}/add-condition — apply a condition from the reference catalog. */
+export function addCondition(heroId: string, conditionId: string, expiresAtEndOf: string | null): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/add-condition`, {
+		method: 'POST',
+		body: JSON.stringify({ conditionId, expiresAtEndOf })
+	});
+}
+
+/** POST /heroes/{id}/remove-condition — clear a condition by its reference id. */
+export function removeCondition(heroId: string, conditionId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/remove-condition`, {
+		method: 'POST',
+		body: JSON.stringify({ conditionId })
+	});
+}
+
 /** POST /heroes/{id}/add-gear-item — add a free-text gear item. */
 export function addGearItem(heroId: string, name: string, quantity: number): Promise<void> {
 	return apiFetch<void>(`/heroes/${heroId}/add-gear-item`, {

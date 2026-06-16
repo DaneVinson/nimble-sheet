@@ -38,6 +38,7 @@ export interface ArmorViewModel {
 }
 
 export interface ConditionViewModel {
+  conditionId: string;
   name: string;
   description: string;
   expiresAtEndOf: string | null;

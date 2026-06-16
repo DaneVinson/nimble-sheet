@@ -179,6 +179,7 @@ export function resolveSheet(hero: Hero, reference: ReferenceData): SheetViewMod
     conditions: hero.activeConditions.map((c) => {
       const ref = conditions.get(c.conditionId);
       return {
+        conditionId: c.conditionId,
         name: ref?.name ?? 'Unknown condition',
         description: ref?.description ?? '',
         expiresAtEndOf: c.expiresAtEndOf

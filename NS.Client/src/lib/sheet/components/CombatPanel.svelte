@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { SheetViewModel } from '../viewmodel';
-  import Panel from './Panel.svelte';
   import ArmorEditor from './ArmorEditor.svelte';
+  import ConditionEditor from './ConditionEditor.svelte';
   import WeaponEditor from './WeaponEditor.svelte';
 
   let { vm }: { vm: SheetViewModel } = $props();
@@ -12,15 +12,5 @@
 
   <ArmorEditor armorItems={vm.armorItems} />
 
-  <Panel title="Conditions" empty={vm.conditions.length === 0} emptyText="No active conditions.">
-    <ul class="space-y-2">
-      {#each vm.conditions as c (c.name)}
-        <li class="text-sm text-slate-200">
-          <span class="font-semibold text-white">{c.name}</span>
-          {#if c.expiresAtEndOf}<span class="text-slate-400"> · expires {c.expiresAtEndOf}</span>{/if}
-          <div class="text-xs text-slate-500">{c.description}</div>
-        </li>
-      {/each}
-    </ul>
-  </Panel>
+  <ConditionEditor conditions={vm.conditions} />
 </div>
