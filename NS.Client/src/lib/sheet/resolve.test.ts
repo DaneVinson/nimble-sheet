@@ -61,6 +61,10 @@ describe('resolveSheet', () => {
     expect(vm.conditions).toEqual([]);
   });
 
+  it('carries the weapon reference id for editing', () => {
+    expect(vm.weapons[0].weaponId).toBe(caldra.weapons[0].weaponId);
+  });
+
   it('falls back gracefully when a referenced entity is missing', () => {
     const heroWithBadWeapon: Hero = {
       ...caldra,

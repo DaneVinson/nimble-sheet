@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 // `$app/navigation` (goto) resolves to src/test/app-stub.ts via the Vitest alias (Step 0).
-import { ApiError, createHero, gainWound, getHeroes, login, spendHitDice, takeDamage, updateHero } from './client';
+import { addArmor, addCondition, addGearItem, addMagicItem, addSpell, addWeapon, ApiError, createHero, gainWound, getHeroes, login, removeWeapon, setWeaponEquipped, spendHitDice, takeDamage, updateHero } from './client';
 import { clearSession } from '$lib/auth/session';
 import { blankBuildModel } from '$lib/sheet/build/model';
 
@@ -73,6 +73,80 @@ describe('play-mutation wrappers', () => {
 	it('surfaces an ApiError on a 400', async () => {
 		captureFetch(400);
 		await expect(takeDamage('h1', 5)).rejects.toBeInstanceOf(ApiError);
+	});
+});
+
+describe('collection wrappers', () => {
+	it('addWeapon posts weaponId/isEquipped/notes', async () => {
+		const fetchMock = captureFetch(204);
+		await addWeapon('h1', 'w1', true, null);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/add-weapon',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ weaponId: 'w1', isEquipped: true, notes: null }) })
+		);
+	});
+
+	it('removeWeapon posts the weaponId', async () => {
+		const fetchMock = captureFetch(204);
+		await removeWeapon('h1', 'w1');
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/remove-weapon',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ weaponId: 'w1' }) })
+		);
+	});
+
+	it('setWeaponEquipped posts weaponId/isEquipped', async () => {
+		const fetchMock = captureFetch(204);
+		await setWeaponEquipped('h1', 'w1', false);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/set-weapon-equipped',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ weaponId: 'w1', isEquipped: false }) })
+		);
+	});
+
+	it('addArmor posts armorId/isEquipped', async () => {
+		const fetchMock = captureFetch(204);
+		await addArmor('h1', 'a1', true);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/add-armor',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ armorId: 'a1', isEquipped: true }) })
+		);
+	});
+
+	it('addMagicItem posts magicItemId/isEquipped/chargesRemaining', async () => {
+		const fetchMock = captureFetch(204);
+		await addMagicItem('h1', 'm1', false, 3);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/add-magic-item',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ magicItemId: 'm1', isEquipped: false, chargesRemaining: 3 }) })
+		);
+	});
+
+	it('addSpell posts spellId/tierUnlocked/notes', async () => {
+		const fetchMock = captureFetch(204);
+		await addSpell('h1', 's1', 2, null);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/add-spell',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ spellId: 's1', tierUnlocked: 2, notes: null }) })
+		);
+	});
+
+	it('addGearItem posts name/quantity', async () => {
+		const fetchMock = captureFetch(204);
+		await addGearItem('h1', 'Torch', 5);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/add-gear-item',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ name: 'Torch', quantity: 5 }) })
+		);
+	});
+
+	it('addCondition posts conditionId/expiresAtEndOf', async () => {
+		const fetchMock = captureFetch(204);
+		await addCondition('h1', 'c1', null);
+		expect(fetchMock).toHaveBeenCalledWith(
+			'/api/heroes/h1/add-condition',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ conditionId: 'c1', expiresAtEndOf: null }) })
+		);
 	});
 });
 

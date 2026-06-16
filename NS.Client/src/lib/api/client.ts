@@ -160,6 +160,128 @@ export function recoverAll(heroId: string): Promise<void> {
 	return apiFetch<void>(`/heroes/${heroId}/recover-all-resources`, { method: 'POST' });
 }
 
+// --- collection mutations ---
+
+/** POST /heroes/{id}/add-weapon — add a weapon from the reference catalog. */
+export function addWeapon(heroId: string, weaponId: string, isEquipped: boolean, notes: string | null): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/add-weapon`, {
+		method: 'POST',
+		body: JSON.stringify({ weaponId, isEquipped, notes })
+	});
+}
+
+/** POST /heroes/{id}/remove-weapon — remove a weapon by its reference id. */
+export function removeWeapon(heroId: string, weaponId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/remove-weapon`, {
+		method: 'POST',
+		body: JSON.stringify({ weaponId })
+	});
+}
+
+/** POST /heroes/{id}/set-weapon-equipped — equip or unequip a weapon. */
+export function setWeaponEquipped(heroId: string, weaponId: string, isEquipped: boolean): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/set-weapon-equipped`, {
+		method: 'POST',
+		body: JSON.stringify({ weaponId, isEquipped })
+	});
+}
+
+/** POST /heroes/{id}/add-armor — add armor from the reference catalog. */
+export function addArmor(heroId: string, armorId: string, isEquipped: boolean): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/add-armor`, {
+		method: 'POST',
+		body: JSON.stringify({ armorId, isEquipped })
+	});
+}
+
+/** POST /heroes/{id}/remove-armor — remove armor by its reference id. */
+export function removeArmor(heroId: string, armorId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/remove-armor`, {
+		method: 'POST',
+		body: JSON.stringify({ armorId })
+	});
+}
+
+/** POST /heroes/{id}/set-armor-equipped — equip or unequip armor. */
+export function setArmorEquipped(heroId: string, armorId: string, isEquipped: boolean): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/set-armor-equipped`, {
+		method: 'POST',
+		body: JSON.stringify({ armorId, isEquipped })
+	});
+}
+
+/** POST /heroes/{id}/add-magic-item — add a magic item from the reference catalog. */
+export function addMagicItem(heroId: string, magicItemId: string, isEquipped: boolean, chargesRemaining: number | null): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/add-magic-item`, {
+		method: 'POST',
+		body: JSON.stringify({ magicItemId, isEquipped, chargesRemaining })
+	});
+}
+
+/** POST /heroes/{id}/remove-magic-item — remove a magic item by its reference id. */
+export function removeMagicItem(heroId: string, magicItemId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/remove-magic-item`, {
+		method: 'POST',
+		body: JSON.stringify({ magicItemId })
+	});
+}
+
+/** POST /heroes/{id}/set-magic-item-equipped — equip or unequip a magic item. */
+export function setMagicItemEquipped(heroId: string, magicItemId: string, isEquipped: boolean): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/set-magic-item-equipped`, {
+		method: 'POST',
+		body: JSON.stringify({ magicItemId, isEquipped })
+	});
+}
+
+/** POST /heroes/{id}/add-spell — learn a spell from the reference catalog. */
+export function addSpell(heroId: string, spellId: string, tierUnlocked: number, notes: string | null): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/add-spell`, {
+		method: 'POST',
+		body: JSON.stringify({ spellId, tierUnlocked, notes })
+	});
+}
+
+/** POST /heroes/{id}/remove-spell — forget a spell by its reference id. */
+export function removeSpell(heroId: string, spellId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/remove-spell`, {
+		method: 'POST',
+		body: JSON.stringify({ spellId })
+	});
+}
+
+/** POST /heroes/{id}/add-condition — apply a condition from the reference catalog. */
+export function addCondition(heroId: string, conditionId: string, expiresAtEndOf: string | null): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/add-condition`, {
+		method: 'POST',
+		body: JSON.stringify({ conditionId, expiresAtEndOf })
+	});
+}
+
+/** POST /heroes/{id}/remove-condition — clear a condition by its reference id. */
+export function removeCondition(heroId: string, conditionId: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/remove-condition`, {
+		method: 'POST',
+		body: JSON.stringify({ conditionId })
+	});
+}
+
+/** POST /heroes/{id}/add-gear-item — add a free-text gear item. */
+export function addGearItem(heroId: string, name: string, quantity: number): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/add-gear-item`, {
+		method: 'POST',
+		body: JSON.stringify({ name, quantity })
+	});
+}
+
+/** POST /heroes/{id}/remove-gear-item — remove a gear item by name. */
+export function removeGearItem(heroId: string, name: string): Promise<void> {
+	return apiFetch<void>(`/heroes/${heroId}/remove-gear-item`, {
+		method: 'POST',
+		body: JSON.stringify({ name })
+	});
+}
+
 /** POST /heroes — create a hero from build attributes; returns the new id. */
 export function createHero(build: HeroBuildModel): Promise<{ id: string }> {
 	return apiFetch<{ id: string }>('/heroes', {

@@ -167,6 +167,82 @@ public sealed class HeroTests
         Assert.Equal(0, hero.HitDiceAvailable);
     }
 
+    /// <summary>Equipping a weapon the hero owns flips its equipped flag.</summary>
+    [Fact]
+    public void SetWeaponEquipped_WhenWeaponPresent_UpdatesFlag()
+    {
+        var hero = TestHero.Create();
+        var weaponId = Guid.CreateVersion7();
+        hero.AddWeapon(new HeroWeapon(hero.Id, false, null, weaponId));
+
+        hero.SetWeaponEquipped(weaponId, true);
+
+        Assert.True(hero.Weapons.Single().IsEquipped);
+    }
+
+    /// <summary>Setting equipped on an unknown weapon id changes nothing.</summary>
+    [Fact]
+    public void SetWeaponEquipped_WhenWeaponAbsent_IsNoOp()
+    {
+        var hero = TestHero.Create();
+        hero.AddWeapon(new HeroWeapon(hero.Id, true, null, Guid.CreateVersion7()));
+
+        hero.SetWeaponEquipped(Guid.CreateVersion7(), false);
+
+        Assert.True(hero.Weapons.Single().IsEquipped);
+    }
+
+    /// <summary>Equipping armor the hero owns flips its equipped flag.</summary>
+    [Fact]
+    public void SetArmorEquipped_WhenArmorPresent_UpdatesFlag()
+    {
+        var hero = TestHero.Create();
+        var armorId = Guid.CreateVersion7();
+        hero.AddArmor(new HeroArmor(armorId, hero.Id, false));
+
+        hero.SetArmorEquipped(armorId, true);
+
+        Assert.True(hero.Armor.Single().IsEquipped);
+    }
+
+    /// <summary>Setting equipped on an unknown armor id changes nothing.</summary>
+    [Fact]
+    public void SetArmorEquipped_WhenArmorAbsent_IsNoOp()
+    {
+        var hero = TestHero.Create();
+        hero.AddArmor(new HeroArmor(Guid.CreateVersion7(), hero.Id, true));
+
+        hero.SetArmorEquipped(Guid.CreateVersion7(), false);
+
+        Assert.True(hero.Armor.Single().IsEquipped);
+    }
+
+    /// <summary>Equipping a magic item the hero owns flips its equipped flag.</summary>
+    [Fact]
+    public void SetMagicItemEquipped_WhenItemPresent_UpdatesFlag()
+    {
+        var hero = TestHero.Create();
+        var itemId = Guid.CreateVersion7();
+        hero.AddMagicItem(new HeroMagicItem(null, hero.Id, false, itemId));
+
+        hero.SetMagicItemEquipped(itemId, true);
+
+        Assert.True(hero.MagicItems.Single().IsEquipped);
+    }
+
+    /// <summary>Setting equipped on an unknown magic item id changes nothing.</summary>
+    [Fact]
+    public void SetMagicItemEquipped_WhenItemAbsent_IsNoOp()
+    {
+        var hero = TestHero.Create();
+        var itemId = Guid.CreateVersion7();
+        hero.AddMagicItem(new HeroMagicItem(null, hero.Id, true, itemId));
+
+        hero.SetMagicItemEquipped(Guid.CreateVersion7(), false);
+
+        Assert.True(hero.MagicItems.Single().IsEquipped);
+    }
+
     private static void UpdateBuildTo(Hero hero, int maxHp, string name) =>
         hero.UpdateBuild(
             ancestryId: Guid.CreateVersion7(),

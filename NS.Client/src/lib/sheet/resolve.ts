@@ -79,12 +79,12 @@ function buildSpellsByTier(hero: Hero, spells: Map<string, Spell>): SpellTierGro
     const spell = spells.get(known.spellId);
     if (!spell) {
       return {
-        name: 'Unknown spell', tier: known.tierUnlocked, school: 'Fire', manaCost: 0,
+        spellId: known.spellId, name: 'Unknown spell', tier: known.tierUnlocked, school: 'Fire', manaCost: 0,
         actionCost: 1, damage: null, damageType: null, description: '', notes: known.notes
       };
     }
     return {
-      name: spell.name, tier: spell.tier, school: spell.school, manaCost: spell.manaCost,
+      spellId: known.spellId, name: spell.name, tier: spell.tier, school: spell.school, manaCost: spell.manaCost,
       actionCost: spell.actionCost, damage: spell.damageExpression, damageType: spell.damageType,
       description: spell.description, notes: known.notes
     };
@@ -154,6 +154,7 @@ export function resolveSheet(hero: Hero, reference: ReferenceData): SheetViewMod
     weapons: hero.weapons.map((w) => {
       const ref = weapons.get(w.weaponId);
       return {
+        weaponId: w.weaponId,
         name: ref?.name ?? 'Unknown weapon',
         damage: ref?.damageExpression ?? '—',
         damageType: ref?.damageType ?? 'Bludgeoning',
@@ -168,6 +169,7 @@ export function resolveSheet(hero: Hero, reference: ReferenceData): SheetViewMod
     armorItems: hero.armor.map((a) => {
       const ref = armor.get(a.armorId);
       return {
+        armorId: a.armorId,
         name: ref?.name ?? 'Unknown armor',
         type: ref?.armorType ?? 'Cloth',
         armorValue: ref?.armorValue ?? 0,
@@ -177,6 +179,7 @@ export function resolveSheet(hero: Hero, reference: ReferenceData): SheetViewMod
     conditions: hero.activeConditions.map((c) => {
       const ref = conditions.get(c.conditionId);
       return {
+        conditionId: c.conditionId,
         name: ref?.name ?? 'Unknown condition',
         description: ref?.description ?? '',
         expiresAtEndOf: c.expiresAtEndOf
@@ -187,6 +190,7 @@ export function resolveSheet(hero: Hero, reference: ReferenceData): SheetViewMod
     magicItems: hero.magicItems.map((m) => {
       const ref = magicItems.get(m.magicItemId);
       return {
+        magicItemId: m.magicItemId,
         name: ref?.name ?? 'Unknown item',
         rarity: ref?.rarity ?? '',
         effect: ref?.effect ?? '',

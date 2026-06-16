@@ -1,6 +1,8 @@
 import { invalidateAll } from '$app/navigation';
 import {
-	gainWound, grantTempHp, heal, healWound, recoverAll, spendHitDice, spendMana, takeDamage
+	addArmor, addCondition, addGearItem, addMagicItem, addSpell, addWeapon, gainWound, grantTempHp, heal, healWound,
+	recoverAll, removeArmor, removeCondition, removeGearItem, removeMagicItem, removeSpell, removeWeapon,
+	setArmorEquipped, setMagicItemEquipped, setWeaponEquipped, spendHitDice, spendMana, takeDamage
 } from '$lib/api/client';
 import { runAction } from './runAction';
 
@@ -19,6 +21,21 @@ export interface HeroActions {
 	spendHitDice(count: number, healingAmount: number): Promise<void>;
 	spendMana(amount: number): Promise<void>;
 	recoverAll(): Promise<void>;
+	addWeapon(weaponId: string, isEquipped: boolean, notes: string | null): Promise<void>;
+	removeWeapon(weaponId: string): Promise<void>;
+	setWeaponEquipped(weaponId: string, isEquipped: boolean): Promise<void>;
+	addArmor(armorId: string, isEquipped: boolean): Promise<void>;
+	removeArmor(armorId: string): Promise<void>;
+	setArmorEquipped(armorId: string, isEquipped: boolean): Promise<void>;
+	addMagicItem(magicItemId: string, isEquipped: boolean, chargesRemaining: number | null): Promise<void>;
+	removeMagicItem(magicItemId: string): Promise<void>;
+	setMagicItemEquipped(magicItemId: string, isEquipped: boolean): Promise<void>;
+	addSpell(spellId: string, tierUnlocked: number, notes: string | null): Promise<void>;
+	removeSpell(spellId: string): Promise<void>;
+	addGearItem(name: string, quantity: number): Promise<void>;
+	removeGearItem(name: string): Promise<void>;
+	addCondition(conditionId: string, expiresAtEndOf: string | null): Promise<void>;
+	removeCondition(conditionId: string): Promise<void>;
 }
 
 /** Create the actions bound to a (lazily-read) hero id. Each action POSTs then re-fetches. */
@@ -43,6 +60,21 @@ export function createHeroActions(getHeroId: () => string): HeroActions {
 		healWound: () => run(() => healWound(getHeroId())),
 		spendHitDice: (count, healingAmount) => run(() => spendHitDice(getHeroId(), count, healingAmount)),
 		spendMana: (amount) => run(() => spendMana(getHeroId(), amount)),
-		recoverAll: () => run(() => recoverAll(getHeroId()))
+		recoverAll: () => run(() => recoverAll(getHeroId())),
+		addWeapon: (weaponId, isEquipped, notes) => run(() => addWeapon(getHeroId(), weaponId, isEquipped, notes)),
+		removeWeapon: (weaponId) => run(() => removeWeapon(getHeroId(), weaponId)),
+		setWeaponEquipped: (weaponId, isEquipped) => run(() => setWeaponEquipped(getHeroId(), weaponId, isEquipped)),
+		addArmor: (armorId, isEquipped) => run(() => addArmor(getHeroId(), armorId, isEquipped)),
+		removeArmor: (armorId) => run(() => removeArmor(getHeroId(), armorId)),
+		setArmorEquipped: (armorId, isEquipped) => run(() => setArmorEquipped(getHeroId(), armorId, isEquipped)),
+		addMagicItem: (magicItemId, isEquipped, chargesRemaining) => run(() => addMagicItem(getHeroId(), magicItemId, isEquipped, chargesRemaining)),
+		removeMagicItem: (magicItemId) => run(() => removeMagicItem(getHeroId(), magicItemId)),
+		setMagicItemEquipped: (magicItemId, isEquipped) => run(() => setMagicItemEquipped(getHeroId(), magicItemId, isEquipped)),
+		addSpell: (spellId, tierUnlocked, notes) => run(() => addSpell(getHeroId(), spellId, tierUnlocked, notes)),
+		removeSpell: (spellId) => run(() => removeSpell(getHeroId(), spellId)),
+		addGearItem: (name, quantity) => run(() => addGearItem(getHeroId(), name, quantity)),
+		removeGearItem: (name) => run(() => removeGearItem(getHeroId(), name)),
+		addCondition: (conditionId, expiresAtEndOf) => run(() => addCondition(getHeroId(), conditionId, expiresAtEndOf)),
+		removeCondition: (conditionId) => run(() => removeCondition(getHeroId(), conditionId))
 	};
 }

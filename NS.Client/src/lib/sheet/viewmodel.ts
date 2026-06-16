@@ -17,6 +17,7 @@ export interface SkillViewModel {
 }
 
 export interface WeaponViewModel {
+  weaponId: string;
   name: string;
   damage: string;        // '1d6+2'
   damageType: DamageType;
@@ -29,6 +30,7 @@ export interface WeaponViewModel {
 }
 
 export interface ArmorViewModel {
+  armorId: string;
   name: string;
   type: ArmorType;
   armorValue: number;
@@ -36,12 +38,14 @@ export interface ArmorViewModel {
 }
 
 export interface ConditionViewModel {
+  conditionId: string;
   name: string;
   description: string;
   expiresAtEndOf: string | null;
 }
 
 export interface SpellViewModel {
+  spellId: string;
   name: string;
   tier: number;
   school: SpellSchool;
@@ -64,6 +68,7 @@ export interface ClassResourceViewModel {
 }
 
 export interface MagicItemViewModel {
+  magicItemId: string;
   name: string;
   rarity: string;
   effect: string;
