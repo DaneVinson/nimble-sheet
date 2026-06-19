@@ -9,11 +9,12 @@
 > - **Rules prose, class stat blocks, class features, subclasses, monster stat blocks, magic items,
 >   and the Control/Chaos tables are transcribed faithfully** (wording preserved; only OCR/encoding
 >   artifacts cleaned: `•` bullets, `–` en-dashes, `×` for multiplication, `—` em-dashes).
-> - **⚠️ The spell lists are NOT in this file.** In the PDF the Fire / Ice / Lightning / Radiant
->   spell pages are **graphical spell cards** — text extraction recovered only the section headers,
->   not a single spell. The cantrips and tier-1 spells for each school must be transcribed by hand
->   from the PDF images or pulled from the full rules. This is the single biggest gap and the main
->   blocker for authentic spell seeding. See [Spell Lists](#spell-lists-not-extractable--gap).
+> - **Spell lists — recovered via OCR.** In the PDF the Fire / Ice / Lightning / Radiant spell pages
+>   are **graphical spell cards** with no text layer, so the original `pdftotext` pass recovered only
+>   the section headers. They were since recovered by rendering PDF pages 11 and 13 to images
+>   (PyMuPDF) and reading the cards visually. All 16 quickstart spells (cantrips + tier 1/2 for each
+>   school) are now transcribed in [Spell Lists](#spell-lists). Double-checked against zoomed crops;
+>   re-verify against the source PDF before relying on exact dice values.
 > - **Save advantage/disadvantage** is written explicitly. The PDF marks these with ▲ (advantage) /
 >   ▼ (disadvantage) symbols next to a stat; this maps to the app's `HeroSaves(AdvantageOn,
 >   DisadvantageOn)` and the sheet's `SAVE▲ / SAVE▼` markers.
@@ -30,7 +31,7 @@
 3. [Running Monsters (GM)](#running-monsters-gm)
 4. [Classes](#classes) — The Cheat, Hunter, Mage, Oathsworn
 5. [Reference Tables](#reference-tables) — Control Table, Chaos Table
-6. [Spell Lists](#spell-lists-not-extractable--gap) — ⚠️ gap
+6. [Spell Lists](#spell-lists) — Fire / Ice / Lightning / Radiant (recovered via OCR)
 7. [Bestiary](#bestiary-starter-adventures)
 8. [Adventure Items](#adventure-items)
 9. [Starter Adventures (summary)](#starter-adventures-summary)
@@ -567,24 +568,59 @@ again. The PDF notes the "real" Chaos Table is a GM secret; this is the publishe
 
 ---
 
-## Spell Lists (NOT extractable — gap)
+## Spell Lists
 
-⚠️ **The PDF's spell pages did not extract.** The quickstart includes spell pages headed
-**FIRE SPELLS**, **ICE SPELLS**, **LIGHTNING SPELLS**, and **RADIANT SPELLS** (the Mage knows Fire/Ice/
-Lightning; the Oathsworn knows Radiant). In the source these are laid out as **graphical spell cards**,
-so text extraction recovered only the four headers — **no spell names, mana costs, damage, ranges, or
-effects came through**.
+The quickstart includes four spell schools: **Fire, Ice, Lightning** (known by the Mage) and
+**Radiant** (known by the Oathsworn). Each school below lists 4 spells — 2 cantrips, 1 tier-1, 1
+tier-2. Recall: **mana cost = tier** (cantrips cost 0 mana); the full game has **6 schools** and **9
+tiers** each, but the quickstart only unlocks cantrips, tier 1 (level 2), and tier 2 (level 4).
+**"KEY"** = one of the caster's Key Stats (Mage: INT/WIL; Oathsworn: STR/WIL).
 
-**To fill this gap**, the cantrips and tier-1 spells for each school must be transcribed by hand from
-the PDF page images (pages ~11 and ~13), or sourced from the full Nimble rules (NimbleRPG.com). Until
-then, the app's seeded spells remain placeholder data rather than authentic Nimble spells.
+> These were recovered by OCR/visual reading of the PDF's graphical spell cards (pages 11 and 13).
+> The card layout gives **action cost** (top-left), **tier/cantrip** (top-right), name, and a
+> Range/Reach + Damage/effect line. Re-verify exact dice against the source PDF before depending on
+> them for rules-critical logic.
 
-What we *do* know from the surrounding rules:
-- A spell's **mana cost = its tier**; **cantrips cost 0 mana**.
-- The four schools relevant to the quickstart classes are **Fire, Ice, Lightning** (Mage) and
-  **Radiant** (Oathsworn). The full game has **6 schools** total.
-- Each school has cantrips plus **9 tiers**; the quickstart only unlocks **cantrips and tier 1** (and
-  tier 2 at level 4).
+### Fire Spells *(Mage)*
+
+| Spell | Cost | Tier | Range/Reach | Effect |
+|---|---|---|---|---|
+| **Flame Dart** | 1 action | Cantrip | Range 8 | Damage **1d10**. On Crit: **Smoldering**. |
+| **Heart's Fire** | 1 action | Cantrip | Range 4 | Give an ally within Range an extra action. Spend 1 mana to cast this as a **reaction**. |
+| **Ignite** | 2 actions | 1 | Range 8 | Damage **4d10** to a **Smoldering** target, ending the condition on hit. *Upcasting: +10 damage.* |
+| **Enchant Weapon** | 1 action | 2 | — | A weapon you touch is enchanted with magical flame: it deals **+KEY** damage and inflicts **Smoldering** on crit. |
+
+### Ice Spells *(Mage)*
+
+| Spell | Cost | Tier | Range/Reach | Effect |
+|---|---|---|---|---|
+| **Ice Lance** | 1 action | Cantrip | Range 12 | Damage **1d6** cold/piercing. On Hit: **Slowed**. |
+| **Snowblind** | 1 action | Cantrip | Reach 1 | Damage **1d6**. On Hit: **Blinded** until the end of their next turn. |
+| **Frost Shield** | 2 actions | 1 | Self (Reaction, when attacked) | Gain **2×KEY temp HP** and **Defend** for free. The ice melts and these temp HP are lost at the start of your next turn. *Upcasting: +2×KEY temp HP.* |
+| **Shatter** | 1 action | 2 | Range 12 | Damage **3d6**. If any die rolls the max against a **Hampered** target, this counts as a crit. On Crit: **+20 damage**. |
+
+### Lightning Spells *(Mage)*
+
+| Spell | Cost | Tier | Range/Reach | Effect |
+|---|---|---|---|---|
+| **Zap** | 1 action | Cantrip | Range 12 | Damage **2d8**. On a Miss: the lightning fails to find ground and **strikes you instead**. |
+| **Overload** | 1 action | Cantrip (AoE) | Reach 2 | **Requires Charged** (casting ends the condition). Damage **2d8** to others within Reach. *Charged: whenever you take lightning damage, you are Charged for 1 minute.* |
+| **Arc Lightning** | 2 actions | 1 | Range 12 | Damage **3d8**; also strikes the next closest creature to your target. On a Miss: strikes you instead. *Upcasting: +4 damage.* |
+| **Alacrity** | 1 action | 2 | Self (Reaction, when attacked) | **Defend** for free. After damage is dealt, you gain the **Charged** condition, then teleport anywhere within **Range 4**. |
+
+### Radiant Spells *(Oathsworn)*
+
+| Spell | Cost | Tier | Range/Reach | Effect |
+|---|---|---|---|---|
+| **Rebuke** | 1 action | Cantrip | Reach 4 | Damage **1d6** (ignoring armor); **does not miss**. **2× damage** vs. undead or cowardly targets (Frightened, or behind cover). |
+| **True Strike** | 1 action | Cantrip | Reach 2 | Give a creature **advantage** on the next attack they make (until the end of their next turn). |
+| **Heal** | 1 action | 1 | Reach 1 | Heal a creature **1d6 + KEY** HP. *Upcasting (choose one): +4 Reach, +1d6 healing, or +1 target.* |
+| **Warding Bond** | 1 action | 2 | — | Designate a willing creature as your **ward** for 1 minute: they take **half damage** from all attacks; **you are attacked for the other half**. |
+
+> **Coverage note:** this is the full quickstart spell set (16 spells). It is **not** the complete
+> Nimble spell list — the full game has 6 schools, 58 core spells, and 18 utility spells. The
+> Oathsworn knows only Radiant; the Mage knows Fire/Ice/Lightning (plus Utility via *Elemental
+> Mastery* at level 3, not printed here).
 
 ---
 
@@ -688,4 +724,5 @@ a 3-shot starter adventure, a sandbox setting (9 detailed locations), 7 one-shot
 
 *This file is the canonical local copy of the Nimble quickstart rules for the NimbleSheets project.
 When seeding or modeling reference data, prefer this document over the placeholder demo data currently
-in `NS.SoloDB/SeedData.cs`. The biggest outstanding fidelity gap is the **spell lists** (see above).*
+in `NS.SoloDB/SeedData.cs`. The spell lists (originally an extraction gap) were recovered via OCR and
+are now complete for the quickstart set — see [Spell Lists](#spell-lists).*

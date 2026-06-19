@@ -20,7 +20,7 @@ NS.Tests/                      ← xUnit tests (domain units, SoloDB round-trips
 docs/rules/                    ← Game-rules reference (source of truth for the domain/seed data)
 ```
 
-**Game rules reference**: `docs/rules/nimble-basic-rules.md` is a faithful Markdown transcription of the *Nimble Quickstart Rules* PDF (stats, skills, combat, the 4 starter classes with full stat blocks/subclasses, monster stat blocks, Control/Chaos tables, items). **Use it as the source of truth** when modeling domain data or writing seed data. Known gap: the **spell lists** (Fire/Ice/Lightning/Radiant) are graphical cards in the PDF and did **not** extract — they must be transcribed by hand or pulled from the full rules, so seeded spells remain placeholder for now. The current `NS.SoloDB/SeedData.cs` is illustrative demo data (some D&D-flavored), **not** authentic Nimble content from this rules file.
+**Game rules reference**: `docs/rules/nimble-basic-rules.md` is a faithful Markdown transcription of the *Nimble Quickstart Rules* PDF (stats, skills, combat, the 4 starter classes with full stat blocks/subclasses, monster stat blocks, Control/Chaos tables, items). **Use it as the source of truth** when modeling domain data or writing seed data. It now includes the full quickstart **spell lists** (Fire/Ice/Lightning/Radiant — 16 spells) which were originally graphical cards that didn't text-extract and were recovered via OCR (rendering PDF pages 11/13 to images with PyMuPDF and reading them). The current `NS.SoloDB/SeedData.cs` is still illustrative demo data (some D&D-flavored), **not** authentic Nimble content — replacing it with content from this rules file (classes, conditions, items, monsters, and now spells) is outstanding work.
 
 ---
 
