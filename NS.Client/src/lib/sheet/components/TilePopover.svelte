@@ -23,7 +23,13 @@
 		}
 	}
 
-	function handleWindowClick(event: MouseEvent) {
+	// Dismiss on pointerdown rather than click. A native <select> inside the popover renders
+	// its option list as an OS-level popup; choosing an option emits a fall-through `click`
+	// whose target is outside the small popover, which a click listener would treat as
+	// "clicked outside" and close the popover before the user can act. Native option selection
+	// does not dispatch a page-level pointerdown, so pointerdown-based outside-detection is
+	// immune to it while still dismissing on genuine outside interaction.
+	function handleWindowPointerDown(event: PointerEvent) {
 		if (open && root && !root.contains(event.target as Node)) {
 			open = false;
 		}
@@ -36,7 +42,7 @@
 	}
 </script>
 
-<svelte:window onclick={handleWindowClick} onkeydown={handleKeydown} />
+<svelte:window onpointerdown={handleWindowPointerDown} onkeydown={handleKeydown} />
 
 <div bind:this={root} class="relative">
 	<button type="button" aria-label={label} class="block w-full text-left" onclick={toggle}>
