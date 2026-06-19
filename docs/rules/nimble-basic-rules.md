@@ -2,8 +2,8 @@
 
 > **What this is.** A Markdown transcription of the *Nimble Quickstart Rules* PDF, converted for
 > easy re-reading by Claude and as the authoritative source for NimbleSheets' domain model and
-> reference-data seeding. **Source:** `NimbleBasicRules.pdf` (15 pages, retrieved 2026-06-18 from
-> `C:\temp\NimbleBasicRules.pdf`). Full game at **NimbleRPG.com**.
+> reference-data seeding. **Source:** `NimbleBasicRules.pdf` (15 pages), committed alongside this file
+> at `docs/rules/NimbleBasicRules.pdf` as the fidelity backstop. Full game at **NimbleRPG.com**.
 >
 > **Fidelity notes — read these before trusting this file:**
 > - **Rules prose, class stat blocks, class features, subclasses, monster stat blocks, magic items,
