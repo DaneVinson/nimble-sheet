@@ -34,11 +34,19 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
 	if (current) {
 		headers.set('Authorization', `Bearer ${current.token}`);
 	}
-	if (init.body !== undefined) {
+
+	// FastEndpoints rejects DTO-bound POST/PUT/PATCH requests that lack a JSON content type with
+	// 415 — even when the request carries no payload (e.g. gain-wound binds HeroId from the route).
+	// So for any mutating request always send application/json, defaulting to an empty object body.
+	const method = (init.method ?? 'GET').toUpperCase();
+	const isMutation = method === 'POST' || method === 'PUT' || method === 'PATCH';
+	let body = init.body;
+	if (isMutation) {
 		headers.set('Content-Type', 'application/json');
+		body ??= '{}';
 	}
 
-	const response = await fetch(`${API_BASE}${path}`, { ...init, headers });
+	const response = await fetch(`${API_BASE}${path}`, { ...init, headers, body });
 
 	if (response.status === 401) {
 		clearSession();

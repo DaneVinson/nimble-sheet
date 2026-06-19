@@ -61,13 +61,17 @@ describe('play-mutation wrappers', () => {
 		);
 	});
 
-	it('gainWound posts with no body and resolves on 204', async () => {
+	it('gainWound posts an empty JSON body with a JSON content type and resolves on 204', async () => {
 		const fetchMock = captureFetch(204);
 		await expect(gainWound('h1')).resolves.toBeUndefined();
 		const [path, init] = fetchMock.mock.calls[0] as [string, RequestInit];
 		expect(path).toBe('/api/heroes/h1/gain-wound');
 		expect(init.method).toBe('POST');
-		expect(init.body).toBeUndefined();
+		// FastEndpoints rejects DTO-bound POSTs lacking a JSON content type with 415, even when
+		// the request carries no payload (gain-wound binds HeroId from the route), so a no-body
+		// mutation must still send application/json with an empty object body.
+		expect(init.body).toBe('{}');
+		expect(new Headers(init.headers).get('Content-Type')).toBe('application/json');
 	});
 
 	it('surfaces an ApiError on a 400', async () => {
