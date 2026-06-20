@@ -1,108 +1,65 @@
-import type {
-	ClassResources, DieType, Hero, HeroClass, HeroCombatStats, HeroSaves, HeroSkills, HeroStats
-} from '$lib/api/types';
+import type { AbilityScores, Hero, HeroClass } from '$lib/api/types';
+import { POINT_BUY_MIN } from './pointBuy';
+import { startingHp } from './classDefs';
 
-/** The numeric face value of a hit die (e.g. 'D8' → 8); used as a new hero's default Max HP. */
-export function hitDieFaceValue(dieType: DieType): number {
-	return Number(dieType.slice(1));
-}
-
-/** The client-side editable shape of a hero's build attributes (mirrors the API's HeroBuildRequest). */
+/** The client-side editable shape of a hero's player-set build inputs. */
 export interface HeroBuildModel {
-	name: string;
-	ancestryId: string;
-	backgroundId: string | null;
-	heroClass: HeroClass;
-	maxHp: number;
-	maxMana: number | null;
-	combatStats: HeroCombatStats;
-	resources: ClassResources;
-	saves: HeroSaves;
-	skills: HeroSkills;
-	stats: HeroStats;
+  name: string;
+  ancestryId: string;
+  backgroundId: string | null;
+  heroClass: HeroClass | '';
+  baseAbilityScores: AbilityScores;
+  maxHp: number;
 }
 
-/** A level-1 default build for the create form. */
+/** A level-1 default build for the create form (class unset, all scores at the point-buy minimum). */
 export function blankBuildModel(): HeroBuildModel {
-	// HP and the hit die default together so a new hero starts at the die's face value (D8 → 8), not 1.
-	const defaultHitDie: DieType = 'D8';
-	return {
-		name: '',
-		ancestryId: '',
-		backgroundId: null,
-		heroClass: 'Berserker',
-		maxHp: hitDieFaceValue(defaultHitDie),
-		maxMana: null,
-		combatStats: { armor: 0, hitDieType: defaultHitDie, initiativeBonus: 0, speed: 6 },
-		resources: {
-			judgmentDiceCount: null,
-			judgmentDiceType: null,
-			layOnHandsPool: null,
-			thrillCharges: null
-		},
-		saves: { advantageOn: 'Strength', disadvantageOn: 'Dexterity' },
-		skills: {
-			arcana: 0, examination: 0, finesse: 0, influence: 0, insight: 0,
-			lore: 0, might: 0, naturecraft: 0, perception: 0, stealth: 0
-		},
-		stats: { dexterity: 0, intelligence: 0, strength: 0, will: 0 }
-	};
+  return {
+    name: '',
+    ancestryId: '',
+    backgroundId: null,
+    heroClass: '',
+    baseAbilityScores: {
+      dexterity: POINT_BUY_MIN,
+      intelligence: POINT_BUY_MIN,
+      strength: POINT_BUY_MIN,
+      will: POINT_BUY_MIN
+    },
+    maxHp: 0
+  };
 }
 
-// Coerce an empty/NaN numeric input (Svelte binds a cleared number field to null) back to 0.
-function coerceNumber(value: number): number {
-	return Number.isFinite(value) ? value : 0;
-}
-
-/**
- * Coerce the required (non-nullable) numeric build fields — combat stats, stats, and skills — from
- * a cleared input's null/NaN back to 0 before submit. The server's int properties reject JSON null,
- * so this turns a blanked field into its neutral default instead of an opaque 400. Nullable fields
- * (maxMana, the class-resource pools) are intentionally left as-is.
- */
-export function normalizeBuild(model: HeroBuildModel): HeroBuildModel {
-	return {
-		...model,
-		combatStats: {
-			...model.combatStats,
-			armor: coerceNumber(model.combatStats.armor),
-			initiativeBonus: coerceNumber(model.combatStats.initiativeBonus),
-			speed: coerceNumber(model.combatStats.speed)
-		},
-		stats: {
-			dexterity: coerceNumber(model.stats.dexterity),
-			intelligence: coerceNumber(model.stats.intelligence),
-			strength: coerceNumber(model.stats.strength),
-			will: coerceNumber(model.stats.will)
-		},
-		skills: {
-			arcana: coerceNumber(model.skills.arcana),
-			examination: coerceNumber(model.skills.examination),
-			finesse: coerceNumber(model.skills.finesse),
-			influence: coerceNumber(model.skills.influence),
-			insight: coerceNumber(model.skills.insight),
-			lore: coerceNumber(model.skills.lore),
-			might: coerceNumber(model.skills.might),
-			naturecraft: coerceNumber(model.skills.naturecraft),
-			perception: coerceNumber(model.skills.perception),
-			stealth: coerceNumber(model.skills.stealth)
-		}
-	};
-}
-
-/** Map a loaded hero's build fields onto an editable model (independent nested copies) for the edit form. */
+/** Map a loaded hero onto an editable build model for the edit form. */
 export function heroToBuildModel(hero: Hero): HeroBuildModel {
-	return {
-		name: hero.name,
-		ancestryId: hero.ancestryId,
-		backgroundId: hero.backgroundId,
-		heroClass: hero.class,
-		maxHp: hero.maxHp,
-		maxMana: hero.maxMana,
-		combatStats: { ...hero.combatStats },
-		resources: { ...hero.resources },
-		saves: { ...hero.saves },
-		skills: { ...hero.skills },
-		stats: { ...hero.stats }
-	};
+  return {
+    name: hero.name,
+    ancestryId: hero.ancestryId,
+    backgroundId: hero.backgroundId,
+    heroClass: hero.class,
+    baseAbilityScores: { ...hero.baseAbilityScores },
+    maxHp: hero.maxHp
+  };
+}
+
+function coerceNumber(value: number): number {
+  return Number.isFinite(value) ? value : 0;
+}
+
+/** Coerce cleared numeric inputs back to numbers before submit. */
+export function normalizeBuild(model: HeroBuildModel): HeroBuildModel {
+  return {
+    ...model,
+    maxHp: coerceNumber(model.maxHp),
+    baseAbilityScores: {
+      dexterity: coerceNumber(model.baseAbilityScores.dexterity),
+      intelligence: coerceNumber(model.baseAbilityScores.intelligence),
+      strength: coerceNumber(model.baseAbilityScores.strength),
+      will: coerceNumber(model.baseAbilityScores.will)
+    }
+  };
+}
+
+/** The default Max HP shown for a chosen class at create (the class's starting HP). */
+export function defaultMaxHpForClass(heroClass: HeroClass | ''): number {
+  return heroClass === '' ? 0 : startingHp(heroClass);
 }

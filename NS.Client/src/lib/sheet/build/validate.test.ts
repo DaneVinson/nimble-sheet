@@ -2,29 +2,30 @@ import { describe, expect, it } from 'vitest';
 import { validateBuild } from './validate';
 import { blankBuildModel } from './model';
 
-function valid() {
-	return { ...blankBuildModel(), name: 'Caldra', ancestryId: 'a1', maxHp: 10 };
-}
-
 describe('validateBuild', () => {
-	it('returns no errors for a complete model', () => {
-		expect(validateBuild(valid())).toEqual({});
-	});
+  it('create requires name, ancestry, class', () => {
+    const e = validateBuild(blankBuildModel(), { mode: 'create', level: 1 });
+    expect(e.name).toBeDefined();
+    expect(e.ancestryId).toBeDefined();
+    expect(e.heroClass).toBeDefined();
+  });
 
-	it('flags an empty/whitespace name', () => {
-		expect(validateBuild({ ...valid(), name: '  ' }).name).toBeDefined();
-	});
+  it('create passes with valid inputs', () => {
+    const m = { ...blankBuildModel(), name: 'Caldra', ancestryId: 'a1', heroClass: 'Oathsworn' as const };
+    expect(validateBuild(m, { mode: 'create', level: 1 })).toEqual({});
+  });
 
-	it('flags a missing ancestry', () => {
-		expect(validateBuild({ ...valid(), ancestryId: '' }).ancestryId).toBeDefined();
-	});
+  it('create rejects over-budget scores', () => {
+    const m = {
+      ...blankBuildModel(), name: 'Caldra', ancestryId: 'a1', heroClass: 'Mage' as const,
+      baseAbilityScores: { dexterity: 15, intelligence: 15, strength: 15, will: 9 }
+    };
+    expect(validateBuild(m, { mode: 'create', level: 1 }).baseAbilityScores).toBeDefined();
+  });
 
-	it('flags non-positive maxHp', () => {
-		expect(validateBuild({ ...valid(), maxHp: 0 }).maxHp).toBeDefined();
-	});
-
-	it('flags negative maxMana but allows null', () => {
-		expect(validateBuild({ ...valid(), maxMana: -1 }).maxMana).toBeDefined();
-		expect(validateBuild({ ...valid(), maxMana: null }).maxMana).toBeUndefined();
-	});
+  it('edit checks maxHp bounds', () => {
+    const m = { ...blankBuildModel(), name: 'Caldra', ancestryId: 'a1', heroClass: 'Oathsworn' as const, maxHp: 100 };
+    expect(validateBuild(m, { mode: 'edit', level: 1 }).maxHp).toBeDefined();
+    expect(validateBuild({ ...m, maxHp: 17 }, { mode: 'edit', level: 1 }).maxHp).toBeUndefined();
+  });
 });
