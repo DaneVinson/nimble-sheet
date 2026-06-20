@@ -51,11 +51,14 @@ internal static class SeedData
     /// <summary>Playable ancestries. Placeholder — the Nimble quickstart does not define ancestries.</summary>
     internal static IReadOnlyList<Ancestry> Ancestries { get; } =
     [
-        new("Versatile and ambitious. (Placeholder — the quickstart rules do not define ancestries; the full game has 5 common and 19 exotic ancestries.)",
+        new(new AbilityScores(0, 0, 0, 0),
+            "Versatile and ambitious. (Placeholder — the quickstart rules do not define ancestries; the full game has 5 common and 19 exotic ancestries.)",
             new Guid("a0000000-0000-0000-0000-000000000001"), "Human", ["Adaptable"]),
-        new("Graceful and long-lived. (Placeholder — not defined in the quickstart rules.)",
+        new(new AbilityScores(0, 0, 0, 0),
+            "Graceful and long-lived. (Placeholder — not defined in the quickstart rules.)",
             new Guid("a0000000-0000-0000-0000-000000000002"), "Elf", ["Keen Senses"]),
-        new("Stout and steadfast. (Placeholder — not defined in the quickstart rules.)",
+        new(new AbilityScores(0, 0, 0, 0),
+            "Stout and steadfast. (Placeholder — not defined in the quickstart rules.)",
             new Guid("a0000000-0000-0000-0000-000000000003"), "Dwarf", ["Stonecunning"]),
     ];
 
