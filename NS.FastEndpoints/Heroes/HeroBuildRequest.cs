@@ -1,37 +1,55 @@
 namespace NSFastEndpoints;
 
-/// <summary>The character-build attributes shared by hero creation and update. The owning user is taken from the authenticated token, never the request body.</summary>
+/// <summary>The inputs for creating a hero. Owner is taken from the token, never the body.</summary>
 /// <param name="AncestryId">The identifier of the hero's ancestry.</param>
 /// <param name="BackgroundId">The optional identifier of the hero's background.</param>
-/// <param name="CombatStats">The hero's combat statistics.</param>
-/// <param name="HeroClass">The hero's class.</param>
-/// <param name="MaxHp">The hero's maximum hit points.</param>
-/// <param name="MaxMana">The hero's maximum mana; <see langword="null"/> for non-casters.</param>
+/// <param name="BaseAbilityScores">The player-bought base ability scores (point-buy).</param>
+/// <param name="HeroClass">The hero's class (chosen once, at creation).</param>
 /// <param name="Name">The hero's name.</param>
-/// <param name="Resources">The hero's class-specific resource pools.</param>
-/// <param name="Saves">The hero's save advantage and disadvantage types.</param>
-/// <param name="Skills">The hero's skill bonuses.</param>
-/// <param name="Stats">The hero's base stats.</param>
-public sealed record HeroBuildRequest(
+public sealed record CreateHeroRequest(
     Guid AncestryId,
     Guid? BackgroundId,
-    HeroCombatStats CombatStats,
+    AbilityScores BaseAbilityScores,
     HeroClass HeroClass,
-    int MaxHp,
-    int? MaxMana,
-    string Name,
-    ClassResources Resources,
-    HeroSaves Saves,
-    HeroSkills Skills,
-    HeroStats Stats);
+    string Name);
 
-/// <summary>Validates <see cref="HeroBuildRequest"/>.</summary>
-public sealed class HeroBuildValidator : Validator<HeroBuildRequest>
+/// <summary>Validates <see cref="CreateHeroRequest"/>.</summary>
+public sealed class CreateHeroValidator : Validator<CreateHeroRequest>
 {
-    /// <summary>Initializes validation rules for a hero build.</summary>
-    public HeroBuildValidator()
+    /// <summary>Initializes validation rules for hero creation.</summary>
+    public CreateHeroValidator()
     {
         RuleFor(r => r.Name).NotEmpty();
+        RuleFor(r => r.AncestryId).NotEmpty();
+        RuleFor(r => r.HeroClass)
+            .Must(ClassDefinitions.IsPlayable)
+            .WithMessage("Class is not a playable class.");
+        RuleFor(r => r.BaseAbilityScores)
+            .Must(PointBuy.IsValid)
+            .WithMessage("Ability scores must be between 8 and 15 and cost at most 27 points.");
+    }
+}
+
+/// <summary>The inputs for updating a hero. Class and base ability scores are immutable after creation.</summary>
+/// <param name="AncestryId">The identifier of the hero's ancestry.</param>
+/// <param name="BackgroundId">The optional identifier of the hero's background.</param>
+/// <param name="MaxHp">The hero's maximum hit points (bounds-checked against class and level).</param>
+/// <param name="Name">The hero's name.</param>
+public sealed record UpdateHeroRequest(
+    Guid AncestryId,
+    Guid? BackgroundId,
+    int MaxHp,
+    string Name);
+
+/// <summary>Validates <see cref="UpdateHeroRequest"/>. The class+level bounds for <c>MaxHp</c> are
+/// checked in the endpoint, which has access to the stored hero.</summary>
+public sealed class UpdateHeroValidator : Validator<UpdateHeroRequest>
+{
+    /// <summary>Initializes validation rules for a hero update.</summary>
+    public UpdateHeroValidator()
+    {
+        RuleFor(r => r.Name).NotEmpty();
+        RuleFor(r => r.AncestryId).NotEmpty();
         RuleFor(r => r.MaxHp).GreaterThan(0);
     }
 }

@@ -1,12 +1,19 @@
 namespace NSFastEndpoints;
 
 /// <summary>Creates a new level-1 hero owned by the authenticated user.</summary>
-public sealed class CreateHeroEndpoint : Endpoint<HeroBuildRequest, CreateHeroResponse>
+public sealed class CreateHeroEndpoint : Endpoint<CreateHeroRequest, CreateHeroResponse>
 {
+    private readonly IReferenceDataService<Ancestry> _ancestries;
     private readonly IHeroDataService _heroes;
 
-    /// <summary>Initializes the endpoint with the hero data service.</summary>
-    public CreateHeroEndpoint(IHeroDataService heroes) => _heroes = heroes;
+    /// <summary>Initializes the endpoint with the hero and ancestry data services.</summary>
+    /// <param name="ancestries">The ancestry reference-data service.</param>
+    /// <param name="heroes">The hero data service.</param>
+    public CreateHeroEndpoint(IReferenceDataService<Ancestry> ancestries, IHeroDataService heroes)
+    {
+        _ancestries = ancestries;
+        _heroes = heroes;
+    }
 
     /// <inheritdoc/>
     public override void Configure()
@@ -15,20 +22,22 @@ public sealed class CreateHeroEndpoint : Endpoint<HeroBuildRequest, CreateHeroRe
     }
 
     /// <inheritdoc/>
-    public override async Task HandleAsync(HeroBuildRequest req, CancellationToken ct)
+    public override async Task HandleAsync(CreateHeroRequest req, CancellationToken ct)
     {
-        var hero = new Hero(
+        var ancestry = await _ancestries.GetByIdAsync(req.AncestryId);
+        if (ancestry is null)
+        {
+            AddError(r => r.AncestryId, "Ancestry not found.");
+            ThrowIfAnyErrors();
+        }
+
+        var hero = Hero.Create(
+            req.Name,
+            req.HeroClass,
             req.AncestryId,
             req.BackgroundId,
-            req.CombatStats,
-            req.HeroClass,
-            req.MaxHp,
-            req.MaxMana,
-            req.Name,
-            req.Resources,
-            req.Saves,
-            req.Skills,
-            req.Stats,
+            req.BaseAbilityScores,
+            ancestry!.AbilityBonuses,
             User.GetUserId());
 
         await _heroes.SaveAsync(hero);
