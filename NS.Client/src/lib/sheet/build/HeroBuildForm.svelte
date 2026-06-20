@@ -3,38 +3,42 @@
 	import { ApiError } from '$lib/api/client';
 	import { normalizeBuild, type HeroBuildModel } from './model';
 	import { validateBuild, type BuildErrors } from './validate';
+	import { finalScores } from './classDefs';
 	import IdentitySection from './IdentitySection.svelte';
+	import AbilityScoresSection from './AbilityScoresSection.svelte';
 	import VitalsSection from './VitalsSection.svelte';
-	import CombatSection from './CombatSection.svelte';
-	import StatsSection from './StatsSection.svelte';
-	import SavesSection from './SavesSection.svelte';
-	import SkillsSection from './SkillsSection.svelte';
-	import ClassResourcesSection from './ClassResourcesSection.svelte';
 
 	let {
 		initial,
 		ancestries,
 		backgrounds,
 		submitLabel,
+		mode,
+		level = 1,
 		onsubmit
 	}: {
 		initial: HeroBuildModel;
 		ancestries: Ancestry[];
 		backgrounds: Background[];
 		submitLabel: string;
+		mode: 'create' | 'edit';
+		level?: number;
 		onsubmit: (model: HeroBuildModel) => Promise<void>;
 	} = $props();
 
-	// Deep-copy the initial prop once at mount so edits don't mutate the caller's object.
 	// svelte-ignore state_referenced_locally
 	let model = $state<HeroBuildModel>(structuredClone(initial));
 	let errors = $state<BuildErrors>({});
 	let busy = $state(false);
 	let formError = $state<string | null>(null);
 
+	const zero = { dexterity: 0, intelligence: 0, strength: 0, will: 0 };
+	const selectedAncestry = $derived(ancestries.find((a) => a.id === model.ancestryId));
+	const previewFinal = $derived(finalScores(model.baseAbilityScores, selectedAncestry?.abilityBonuses ?? zero));
+
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
-		errors = validateBuild(model);
+		errors = validateBuild(model, { mode, level });
 		if (Object.keys(errors).length > 0) {
 			return;
 		}
@@ -58,15 +62,24 @@
 		bind:heroClass={model.heroClass}
 		{ancestries}
 		{backgrounds}
+		classLocked={mode === 'edit'}
 		{errors}
 	/>
-	<VitalsSection bind:maxHp={model.maxHp} bind:maxMana={model.maxMana} {errors} />
-	<CombatSection bind:combatStats={model.combatStats} />
-	<StatsSection bind:stats={model.stats} />
-	<SavesSection bind:saves={model.saves} />
-	<SkillsSection bind:skills={model.skills} />
-	<ClassResourcesSection bind:resources={model.resources} />
+	<AbilityScoresSection
+		bind:baseAbilityScores={model.baseAbilityScores}
+		ancestry={selectedAncestry}
+		editable={mode === 'create'}
+	/>
+	<VitalsSection
+		bind:maxHp={model.maxHp}
+		heroClass={model.heroClass}
+		finalScores={previewFinal}
+		{mode}
+		{level}
+		{errors}
+	/>
 
+	{#if errors.baseAbilityScores}<p class="text-sm text-red-400">{errors.baseAbilityScores}</p>{/if}
 	{#if formError}<p class="text-sm text-red-400">{formError}</p>{/if}
 	<button
 		type="submit"

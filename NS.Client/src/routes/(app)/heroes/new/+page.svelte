@@ -19,5 +19,6 @@
 	ancestries={data.ancestries}
 	backgrounds={data.backgrounds}
 	submitLabel="Create hero"
+	mode="create"
 	onsubmit={submit}
 />

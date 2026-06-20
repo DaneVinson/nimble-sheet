@@ -19,5 +19,7 @@
 	ancestries={data.ancestries}
 	backgrounds={data.backgrounds}
 	submitLabel="Save changes"
+	mode="edit"
+	level={data.hero.level}
 	onsubmit={submit}
 />
