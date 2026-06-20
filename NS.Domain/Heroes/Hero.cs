@@ -15,6 +15,7 @@ public sealed class Hero
     /// <summary>Private parameterless constructor reserved for deserializers.</summary>
     private Hero()
     {
+        BaseAbilityScores = null!;
         CombatStats = null!;
         Name = null!;
         Resources = null!;
@@ -85,6 +86,9 @@ public sealed class Hero
 
     /// <summary>The identifier of the hero's background; <see langword="null"/> if none selected.</summary>
     public Guid? BackgroundId { get; private set; }
+
+    /// <summary>The hero's player-bought base ability scores (before ancestry bonuses).</summary>
+    public AbilityScores BaseAbilityScores { get; private set; } = null!;
 
     /// <summary>The hero's class.</summary>
     public HeroClass Class { get; private set; }
@@ -172,6 +176,53 @@ public sealed class Hero
 
     /// <summary>The weapons the hero is carrying or wielding.</summary>
     public IReadOnlyList<HeroWeapon> Weapons { get => _weapons; init => _weapons = value is null ? [] : [.. value]; }
+
+    /// <summary>Creates a new level-1 hero, deriving all non-player-set attributes from the class,
+    /// base ability scores, ancestry bonuses, and level 1.</summary>
+    /// <param name="name">The hero's name.</param>
+    /// <param name="heroClass">The hero's class (must be a playable class).</param>
+    /// <param name="ancestryId">The identifier of the hero's ancestry.</param>
+    /// <param name="backgroundId">The optional identifier of the hero's background.</param>
+    /// <param name="baseScores">The player-bought base ability scores.</param>
+    /// <param name="ancestryBonuses">The hero's ancestry ability bonuses.</param>
+    /// <param name="userId">The identifier of the owning <see cref="User"/>.</param>
+    public static Hero Create(
+        string name,
+        HeroClass heroClass,
+        Guid ancestryId,
+        Guid? backgroundId,
+        AbilityScores baseScores,
+        AbilityScores ancestryBonuses,
+        Guid userId)
+    {
+        var derived = HeroDerivation.Derive(heroClass, baseScores, ancestryBonuses, level: 1);
+        return new Hero
+        {
+            AncestryId = ancestryId,
+            BackgroundId = backgroundId,
+            BaseAbilityScores = baseScores,
+            Class = heroClass,
+            CombatStats = derived.CombatStats,
+            CurrentHp = derived.MaxHp,
+            CurrentMana = derived.MaxMana,
+            CurrentWounds = 0,
+            HitDiceAvailable = 1,
+            Id = Guid.CreateVersion7(),
+            Level = 1,
+            MaxHitDice = 1,
+            MaxHp = derived.MaxHp,
+            MaxMana = derived.MaxMana,
+            Name = name,
+            PendingStatIncrease = false,
+            Resources = derived.Resources,
+            Saves = derived.Saves,
+            Skills = derived.Skills,
+            Stats = derived.Stats,
+            TempHp = 0,
+            UnspentSkillPoints = 0,
+            UserId = userId,
+        };
+    }
 
     /// <summary>Adds an armor item to the hero's equipment.</summary>
     public void AddArmor(HeroArmor armor) => _armor.Add(armor);
@@ -389,6 +440,40 @@ public sealed class Hero
         Saves = saves;
         Skills = skills;
         Stats = stats;
+    }
+
+    /// <summary>Overwrites the player-set build attributes, re-deriving ancestry-dependent attributes
+    /// (modifiers, skills, mana, resources) at the hero's current level while preserving class, base
+    /// ability scores, level, subclass, play state, and collections. Max HP is taken from the caller
+    /// (clamped by the API to the class+level bounds) since level-up adds a rolled amount. Current HP
+    /// and mana are clamped to the new maxima.</summary>
+    /// <param name="name">The hero's name.</param>
+    /// <param name="ancestryId">The identifier of the hero's ancestry.</param>
+    /// <param name="backgroundId">The optional identifier of the hero's background.</param>
+    /// <param name="ancestryBonuses">The hero's ancestry ability bonuses.</param>
+    /// <param name="maxHp">The hero's maximum hit points.</param>
+    public void UpdateBuild(
+        string name,
+        Guid ancestryId,
+        Guid? backgroundId,
+        AbilityScores ancestryBonuses,
+        int maxHp)
+    {
+        var derived = HeroDerivation.Derive(Class, BaseAbilityScores, ancestryBonuses, Level);
+        AncestryId = ancestryId;
+        BackgroundId = backgroundId;
+        CombatStats = derived.CombatStats;
+        MaxHp = maxHp;
+        CurrentHp = Math.Min(CurrentHp, maxHp);
+        MaxMana = derived.MaxMana;
+        CurrentMana = derived.MaxMana.HasValue
+            ? Math.Min(CurrentMana ?? derived.MaxMana.Value, derived.MaxMana.Value)
+            : null;
+        Name = name;
+        Resources = derived.Resources;
+        Saves = derived.Saves;
+        Skills = derived.Skills;
+        Stats = derived.Stats;
     }
 
     /// <summary>Updates the hero's combat statistics, for example after equipping or removing armor.</summary>
