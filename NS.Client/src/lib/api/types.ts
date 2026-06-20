@@ -14,6 +14,12 @@ export type HeroClass =
   | 'Shadowmancer' | 'Shepherd' | 'Songweaver' | 'Stormshifter' | 'Zephyr';
 
 // Hero value objects.
+export interface AbilityScores {
+  dexterity: number;
+  intelligence: number;
+  strength: number;
+  will: number;
+}
 export interface HeroStats {
   dexterity: number;
   intelligence: number;
@@ -64,6 +70,7 @@ export interface Hero {
   ancestryId: string;
   armor: HeroArmor[];
   backgroundId: string | null;
+  baseAbilityScores: AbilityScores;
   class: HeroClass;
   combatStats: HeroCombatStats;
   currentHp: number;
@@ -96,7 +103,7 @@ export interface Hero {
 }
 
 // Reference entities.
-export interface Ancestry { description: string; id: string; name: string; traits: string[]; }
+export interface Ancestry { abilityBonuses: AbilityScores; description: string; id: string; name: string; traits: string[]; }
 export interface Background { description: string; grants: string; id: string; name: string; }
 export interface Armor { armorType: ArmorType; armorValue: number; description: string; id: string; name: string; }
 export interface Weapon {
@@ -161,4 +168,19 @@ export interface ReferenceData {
   magicItems: MagicItem[];
   spells: Spell[];
   weapons: Weapon[];
+}
+
+// Hero create/update request DTOs.
+export interface CreateHeroRequest {
+  ancestryId: string;
+  backgroundId: string | null;
+  baseAbilityScores: AbilityScores;
+  heroClass: HeroClass;
+  name: string;
+}
+export interface UpdateHeroRequest {
+  ancestryId: string;
+  backgroundId: string | null;
+  maxHp: number;
+  name: string;
 }

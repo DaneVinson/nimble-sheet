@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 // `$app/navigation` (goto) resolves to src/test/app-stub.ts via the Vitest alias (Step 0).
 import { addArmor, addCondition, addFeature, addGearItem, addMagicItem, addSpell, addWeapon, ApiError, applyHpIncrease, applyStatIncrease, createHero, finalizeSkillAllocation, gainWound, getHeroes, levelUp, login, removeWeapon, setSubclass, setWeaponEquipped, spendHitDice, takeDamage, updateHero } from './client';
 import { clearSession } from '$lib/auth/session';
-import { blankBuildModel } from '$lib/sheet/build/model';
 
 afterEach(() => {
 	vi.restoreAllMocks();
@@ -210,26 +209,40 @@ describe('collection wrappers', () => {
 });
 
 describe('hero build wrappers', () => {
-	it('createHero posts the build and returns the new id', async () => {
-		const fetchMock = vi.fn(() =>
-			Promise.resolve(new Response(JSON.stringify({ id: 'h9' }), { status: 201 }))
-		);
-		vi.stubGlobal('fetch', fetchMock);
-		const model = blankBuildModel();
-		await expect(createHero(model)).resolves.toEqual({ id: 'h9' });
-		expect(fetchMock).toHaveBeenCalledWith(
-			'/api/heroes',
-			expect.objectContaining({ method: 'POST', body: JSON.stringify(model) })
-		);
+	it('createHero posts the create DTO (class + base scores, no maxHp)', async () => {
+		const fetchMock = captureFetch(201);
+		// Response body for 201 create:
+		vi.stubGlobal('fetch', vi.fn(() =>
+			Promise.resolve(new Response(JSON.stringify({ id: 'h1' }), { status: 201 }))));
+		const model = {
+			name: 'Caldra', ancestryId: 'a1', backgroundId: null,
+			heroClass: 'Oathsworn' as const,
+			baseAbilityScores: { dexterity: 10, intelligence: 10, strength: 14, will: 12 },
+			maxHp: 0
+		};
+		await createHero(model);
+		const [path, init] = (globalThis.fetch as unknown as { mock: { calls: [string, RequestInit][] } }).mock.calls[0];
+		expect(path).toBe('/api/heroes');
+		expect(init.method).toBe('POST');
+		expect(JSON.parse(init.body as string)).toEqual({
+			name: 'Caldra', ancestryId: 'a1', backgroundId: null,
+			heroClass: 'Oathsworn',
+			baseAbilityScores: { dexterity: 10, intelligence: 10, strength: 14, will: 12 }
+		});
 	});
 
-	it('updateHero PUTs to the hero route and resolves on 204', async () => {
+	it('updateHero puts the update DTO (name/ancestry/background/maxHp only)', async () => {
 		const fetchMock = captureFetch(204);
-		const model = blankBuildModel();
-		await expect(updateHero('h9', model)).resolves.toBeUndefined();
+		const model = {
+			name: 'Caldra', ancestryId: 'a2', backgroundId: 'b1',
+			heroClass: 'Oathsworn' as const,
+			baseAbilityScores: { dexterity: 10, intelligence: 10, strength: 14, will: 12 },
+			maxHp: 25
+		};
+		await updateHero('h1', model);
 		expect(fetchMock).toHaveBeenCalledWith(
-			'/api/heroes/h9',
-			expect.objectContaining({ method: 'PUT', body: JSON.stringify(model) })
+			'/api/heroes/h1',
+			expect.objectContaining({ method: 'PUT', body: JSON.stringify({ name: 'Caldra', ancestryId: 'a2', backgroundId: 'b1', maxHp: 25 }) })
 		);
 	});
 });

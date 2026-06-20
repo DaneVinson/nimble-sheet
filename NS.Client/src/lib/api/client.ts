@@ -1,7 +1,7 @@
 import { get } from 'svelte/store';
 import { goto } from '$app/navigation';
 import { session, clearSession } from '$lib/auth/session';
-import type { Hero, HeroSkills } from './types';
+import type { CreateHeroRequest, Hero, HeroClass, HeroSkills, UpdateHeroRequest } from './types';
 import type { HeroBuildModel } from '$lib/sheet/build/model';
 
 /** Error thrown for any non-2xx API response. */
@@ -290,20 +290,27 @@ export function removeGearItem(heroId: string, name: string): Promise<void> {
 	});
 }
 
-/** POST /heroes — create a hero from build attributes; returns the new id. */
+/** POST /heroes — create a hero from the build model's create-time inputs. */
 export function createHero(build: HeroBuildModel): Promise<{ id: string }> {
-	return apiFetch<{ id: string }>('/heroes', {
-		method: 'POST',
-		body: JSON.stringify(build)
-	});
+	const body: CreateHeroRequest = {
+		ancestryId: build.ancestryId,
+		backgroundId: build.backgroundId,
+		baseAbilityScores: build.baseAbilityScores,
+		heroClass: build.heroClass as HeroClass,
+		name: build.name
+	};
+	return apiFetch<{ id: string }>('/heroes', { method: 'POST', body: JSON.stringify(body) });
 }
 
-/** PUT /heroes/{id} — update a hero's build attributes. */
+/** PUT /heroes/{id} — update a hero's editable build attributes (class and base scores are immutable). */
 export function updateHero(id: string, build: HeroBuildModel): Promise<void> {
-	return apiFetch<void>(`/heroes/${id}`, {
-		method: 'PUT',
-		body: JSON.stringify(build)
-	});
+	const body: UpdateHeroRequest = {
+		name: build.name,
+		ancestryId: build.ancestryId,
+		backgroundId: build.backgroundId,
+		maxHp: build.maxHp
+	};
+	return apiFetch<void>(`/heroes/${id}`, { method: 'PUT', body: JSON.stringify(body) });
 }
 
 /** POST /heroes/{id}/add-feature — grant a class feature with any selectable-option choices. */

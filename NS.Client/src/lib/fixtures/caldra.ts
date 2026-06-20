@@ -17,6 +17,7 @@ export const caldra: Hero = {
     { armorId: woodenBucklerId, heroId, isEquipped: true }
   ],
   backgroundId: null,
+  baseAbilityScores: { dexterity: 0, intelligence: -1, strength: 2, will: 2 },
   class: 'Oathsworn',
   combatStats: { armor: 8, hitDieType: 'D10', initiativeBonus: 0, speed: 6 },
   currentHp: 17,
@@ -69,7 +70,7 @@ export const caldra: Hero = {
 
 export const referenceData: ReferenceData = {
   ancestries: [
-    { id: ancestryHumanId, name: 'Human', description: 'Versatile and ambitious.', traits: ['Adaptable'] }
+    { abilityBonuses: { dexterity: 0, intelligence: 0, strength: 0, will: 0 }, id: ancestryHumanId, name: 'Human', description: 'Versatile and ambitious.', traits: ['Adaptable'] }
   ],
   armor: [
     { id: rustyMailId, name: 'Rusty Mail', armorType: 'Mail', armorValue: 6, description: '6 + DEX armor.' },
