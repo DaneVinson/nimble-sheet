@@ -55,4 +55,24 @@ public sealed class HeroBuildValidatorTests
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateHeroRequest.MaxHp));
     }
+
+    /// <summary>An empty name fails validation on the Name field.</summary>
+    [Fact]
+    public void Update_EmptyName_Fails()
+    {
+        var request = new UpdateHeroRequest(Guid.CreateVersion7(), null, 10, "");
+        var result = new UpdateHeroValidator().Validate(request);
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateHeroRequest.Name));
+    }
+
+    /// <summary>An empty ancestry identifier fails validation on the AncestryId field.</summary>
+    [Fact]
+    public void Update_EmptyAncestryId_Fails()
+    {
+        var request = new UpdateHeroRequest(Guid.Empty, null, 10, "Caldra");
+        var result = new UpdateHeroValidator().Validate(request);
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateHeroRequest.AncestryId));
+    }
 }

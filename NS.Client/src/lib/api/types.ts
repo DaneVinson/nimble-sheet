@@ -14,12 +14,14 @@ export type HeroClass =
   | 'Shadowmancer' | 'Shepherd' | 'Songweaver' | 'Stormshifter' | 'Zephyr';
 
 // Hero value objects.
+/** Raw ability score values (8–15 at creation) or score adjustments. */
 export interface AbilityScores {
   dexterity: number;
   intelligence: number;
   strength: number;
   will: number;
 }
+/** Derived ability modifiers. */
 export interface HeroStats {
   dexterity: number;
   intelligence: number;

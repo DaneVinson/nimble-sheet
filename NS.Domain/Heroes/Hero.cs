@@ -37,7 +37,7 @@ public sealed class Hero
     public Guid? BackgroundId { get; private set; }
 
     /// <summary>The hero's player-bought base ability scores (before ancestry bonuses).</summary>
-    public AbilityScores BaseAbilityScores { get; private set; } = null!;
+    public AbilityScores BaseAbilityScores { get; private set; }
 
     /// <summary>The hero's class.</summary>
     public HeroClass Class { get; private set; }
@@ -362,7 +362,7 @@ public sealed class Hero
         CurrentHp = Math.Max(CurrentHp - amount, 0);
     }
 
-/// <summary>Overwrites the player-set build attributes, re-deriving ancestry-dependent attributes
+    /// <summary>Overwrites the player-set build attributes, re-deriving ancestry-dependent attributes
     /// (modifiers, skills, mana, resources) at the hero's current level while preserving class, base
     /// ability scores, level, subclass, play state, and collections. Max HP is taken from the caller
     /// (clamped by the API to the class+level bounds) since level-up adds a rolled amount. Current HP
