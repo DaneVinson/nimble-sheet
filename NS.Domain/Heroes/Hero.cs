@@ -24,57 +24,6 @@ public sealed class Hero
         Stats = null!;
     }
 
-    /// <summary>Initializes a new level-1 hero.</summary>
-    /// <param name="ancestryId">The identifier of the hero's ancestry.</param>
-    /// <param name="backgroundId">The optional identifier of the hero's background.</param>
-    /// <param name="combatStats">The hero's initial combat statistics.</param>
-    /// <param name="heroClass">The hero's class.</param>
-    /// <param name="maxHp">The hero's starting maximum hit points.</param>
-    /// <param name="maxMana">The hero's starting maximum mana; <see langword="null"/> for non-casters.</param>
-    /// <param name="name">The hero's name.</param>
-    /// <param name="resources">The hero's class-specific resource pools.</param>
-    /// <param name="saves">The hero's advantaged and disadvantaged saves.</param>
-    /// <param name="skills">The hero's initial skill bonuses.</param>
-    /// <param name="stats">The hero's base stats.</param>
-    /// <param name="userId">The identifier of the <see cref="User"/> who owns this hero.</param>
-    public Hero(
-        Guid ancestryId,
-        Guid? backgroundId,
-        HeroCombatStats combatStats,
-        HeroClass heroClass,
-        int maxHp,
-        int? maxMana,
-        string name,
-        ClassResources resources,
-        HeroSaves saves,
-        HeroSkills skills,
-        HeroStats stats,
-        Guid userId)
-    {
-        AncestryId = ancestryId;
-        BackgroundId = backgroundId;
-        Class = heroClass;
-        CombatStats = combatStats;
-        CurrentHp = maxHp;
-        CurrentMana = maxMana;
-        CurrentWounds = 0;
-        HitDiceAvailable = 1;
-        Id = Guid.CreateVersion7();
-        Level = 1;
-        MaxHitDice = 1;
-        MaxHp = maxHp;
-        MaxMana = maxMana;
-        Name = name;
-        PendingStatIncrease = false;
-        Resources = resources;
-        Saves = saves;
-        Skills = skills;
-        Stats = stats;
-        TempHp = 0;
-        UnspentSkillPoints = 0;
-        UserId = userId;
-    }
-
     /// <summary>The active conditions currently affecting the hero.</summary>
     public IReadOnlyList<HeroCondition> ActiveConditions { get => _conditions; init => _conditions = value is null ? [] : [.. value]; }
 
@@ -413,36 +362,7 @@ public sealed class Hero
         CurrentHp = Math.Max(CurrentHp - amount, 0);
     }
 
-    /// <summary>Overwrites the hero's build attributes (those chosen during character creation), preserving level, subclass, play state, and all collections. Current hit points and mana are clamped to the new maximums.</summary>
-    public void UpdateBuild(
-        Guid ancestryId,
-        Guid? backgroundId,
-        HeroCombatStats combatStats,
-        HeroClass heroClass,
-        int maxHp,
-        int? maxMana,
-        string name,
-        ClassResources resources,
-        HeroSaves saves,
-        HeroSkills skills,
-        HeroStats stats)
-    {
-        AncestryId = ancestryId;
-        BackgroundId = backgroundId;
-        Class = heroClass;
-        CombatStats = combatStats;
-        MaxHp = maxHp;
-        CurrentHp = Math.Min(CurrentHp, maxHp);
-        MaxMana = maxMana;
-        CurrentMana = maxMana.HasValue ? Math.Min(CurrentMana ?? maxMana.Value, maxMana.Value) : null;
-        Name = name;
-        Resources = resources;
-        Saves = saves;
-        Skills = skills;
-        Stats = stats;
-    }
-
-    /// <summary>Overwrites the player-set build attributes, re-deriving ancestry-dependent attributes
+/// <summary>Overwrites the player-set build attributes, re-deriving ancestry-dependent attributes
     /// (modifiers, skills, mana, resources) at the hero's current level while preserving class, base
     /// ability scores, level, subclass, play state, and collections. Max HP is taken from the caller
     /// (clamped by the API to the class+level bounds) since level-up adds a rolled amount. Current HP

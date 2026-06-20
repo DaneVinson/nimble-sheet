@@ -245,15 +245,9 @@ public sealed class HeroTests
 
     private static void UpdateBuildTo(Hero hero, int maxHp, string name) =>
         hero.UpdateBuild(
+            name: name,
             ancestryId: Guid.CreateVersion7(),
             backgroundId: null,
-            combatStats: new HeroCombatStats(8, DieType.D10, 0, 6),
-            heroClass: HeroClass.Oathsworn,
-            maxHp: maxHp,
-            maxMana: null,
-            name: name,
-            resources: new ClassResources(null, null, null, null),
-            saves: new HeroSaves(StatType.Will, StatType.Dexterity),
-            skills: new HeroSkills(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-            stats: new HeroStats(0, 0, 0, 0));
+            ancestryBonuses: new AbilityScores(0, 0, 0, 0),
+            maxHp: maxHp);
 }
