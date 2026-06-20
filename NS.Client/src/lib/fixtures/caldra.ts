@@ -17,7 +17,7 @@ export const caldra: Hero = {
     { armorId: woodenBucklerId, heroId, isEquipped: true }
   ],
   backgroundId: null,
-  baseAbilityScores: { dexterity: 0, intelligence: -1, strength: 2, will: 2 },
+  baseAbilityScores: { dexterity: 10, intelligence: 8, strength: 14, will: 14 },
   class: 'Oathsworn',
   combatStats: { armor: 8, hitDieType: 'D10', initiativeBonus: 0, speed: 6 },
   currentHp: 17,
